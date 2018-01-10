@@ -9,15 +9,27 @@
   "devDependencies": {
     "@types/lodash": "^4.14.92",
     "@types/minimatch": "^3.0.3",
+    "@types/node": "^9.3.0",
+    "ava": "^0.24.0",
+    "ava-ts": "^0.24.0",
+    "ts-node": "^4.1.0",
     "tslint": "^5.8.0",
     "tslint-config-standard": "^7.0.0",
     "typescript": "^2.6.2"
   },
   "dependencies": {
-    "minimatch": "^3.0.4",
-    "lodash": "^4.17.4"
+    "lodash": "^4.17.4",
+    "minimatch": "^3.0.4"
   },
   "peerDependencies": {
     "typescript": ">2.0.0"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "ava-ts test/*.spec.ts",
+    "gentsdoc": "node ./dist/cli.js"
+  },
+  "bin": {
+    "gentsdoc": "./dist/cli.js"
   }
 }

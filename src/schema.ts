@@ -2,14 +2,15 @@ export enum DocNodeKind {
   file = 0,
   function = 1,
   enum = 2,
-  class = 4,
-  typeInterface = 8,
-  typeAlias = 16,
-  variable = 32,
-  type = 64,
-  simpleType = 65, // type | 1
-  tupleType = 66, // type | 2
-  objectType = 68 // type | 4
+  enumMember = 4,
+  class = 8,
+  typeInterface = 16,
+  typeAlias = 32,
+  variable = 64,
+  type = 128,
+  simpleType = 129, // type | 1
+  tupleType = 130, // type | 2
+  objectType = 132 // type | 4
 }
 
 export interface DocNode {
@@ -53,6 +54,15 @@ export interface FileDocNode extends DocNode {
    * The default export, can be any type.
    */
   default?: DocNode
+}
+
+/**
+ * Used to represent where in a file the doc node came from
+ */
+export interface SourceDescription {
+  file: string
+  line: number
+  character: number
 }
 
 /**
@@ -117,7 +127,17 @@ export interface InterfaceDocNode extends DocNode {
 export interface EnumDocNode extends DocNode {
   kind: DocNodeKind.enum
   jsdoc: DocNodeComment
-  members: Array<SimpleTypeDocNode & { value: string }>
+  const: boolean
+  members: EnumMemberDocNode[]
+  sources: SourceDescription[]
+}
+
+export interface EnumMemberDocNode extends DocNode {
+  kind: DocNodeKind.enumMember
+  jsdoc: DocNodeComment
+  type: 'string' | 'number'
+  value: string
+  source: SourceDescription
 }
 
 /**
@@ -141,6 +161,13 @@ export interface ClassDocNode extends DocNode {
 export interface FunctionDocNode extends DocNode {
   kind: DocNodeKind.function
 
+  /**
+   * Unless overloaded, there will only be one item in the array.
+   */
+  signatures: FunctionSignatureDocNode[]
+}
+
+export interface FunctionSignatureDocNode extends DocNode {
   genericTypes: TypeDocNode[]
   parameters: TypeDocNode[]
   returnType: TypeDocNode
