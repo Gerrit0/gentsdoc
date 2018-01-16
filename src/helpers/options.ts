@@ -1,6 +1,7 @@
 import { repeat, flatten, padEnd, size, flow } from 'lodash'
 import { readJsonSync } from './fs'
 import { existsSync } from 'fs'
+import { warn } from '../index'
 
 export const enum OptionType {
   string = 'string',
@@ -129,7 +130,7 @@ export function parseArgv (argv: string[]): void {
     const option = options.get(argv[i].slice(2))
 
     if (!option) {
-      console.warn('Unknown option', argv[i])
+      warn(`Unknown option: ${argv[i]}`)
       continue
     }
 
@@ -164,7 +165,7 @@ export function parseJsonOptionsFile (file: string): void {
     for (const [flag, value] of Object.entries(json)) {
       const option = options.get(flag)
       if (!option) {
-        console.warn(`Unknown option ${flag}`)
+        warn(`Unknown option: ${flag}`)
         continue
       }
 
@@ -174,7 +175,7 @@ export function parseJsonOptionsFile (file: string): void {
         option.type === OptionType.boolean && typeof value === 'boolean',
         option.type === OptionType.stringArray && Array.isArray(value) && value.every(v => typeof v === 'string')
       ].some(Boolean)) option.value = value
-      else console.warn(`Invalid type for ${flag}`)
+      else warn(`Invalid type for ${flag}`)
     }
   } catch (error) {
     throw new Error('Unable to parse options file.')

@@ -69,7 +69,7 @@ export function resolveName (name?: Name): string {
   return name.text
 }
 
-export function resolveExpression (node: ts.Expression | undefined): string {
+export function resolveExpression (node?: ts.Expression): string {
   if (!node) return ''
   // Resolve string literals with the text to handle backslashes
   if (ts.isStringLiteral(node)) {
