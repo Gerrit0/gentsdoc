@@ -64,7 +64,8 @@ function convertParameter (
     throw new Error('Missing parameter declaration')
   }
 
-  const paramName = /^__\d+$/.test(param.name) ? param.name.replace('__', 'param') : param.name
+  // TODO: Some duplicate code here from type.ts, try to merge if possible
+  const paramName = param.name.replace(/^__(\d+)$/, 'param$1')
   const typeNode = declaration.type ? declaration.type : ts.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword)
 
   const doc = convertType(typeNode, partial(getParamComment, commentNode), paramName)

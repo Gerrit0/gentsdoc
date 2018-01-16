@@ -1,6 +1,6 @@
 import { DocNodeComment, DocNodeTag } from '../schema'
 import * as ts from 'typescript'
-import { last, toArray, partialRight } from 'lodash'
+import { last, toArray, partial } from 'lodash'
 
 export function getCommentFromSymbol (symbol: ts.Symbol): DocNodeComment {
   return toArray(symbol.declarations)
@@ -44,19 +44,19 @@ export function getFileComment (file: ts.SourceFile): DocNodeComment {
   return comment
 }
 
-function getCommentFromPropertyLikeTag (node: ts.Node, name: string, tagName: string[]): string {
+function getCommentFromPropertyLikeTag (tagNames: string[], node: ts.Node, name: string): string {
   const doc = getJSDoc(node)
   if (!doc) return ''
 
   const tag = toArray(doc.tags)
-    .filter(ts.isJSDocPropertyLikeTag)
-    .filter(tag => tagName.includes(tag.tagName.text))
+    .filter(tag => tagNames.includes(tag.tagName.text))
     .map(tag => {
       // "@param arg.0" will result in the name "arg." as 0 is not a valid identifier.
       // To support documenting tuples, override this.
+      const badCommentSplit = ts.isJSDocPropertyLikeTag(tag) && tag.name.getText().endsWith('.')
 
       const fullText = [tag.getText(), tag.comment || '']
-        .join(tag.name.getText().endsWith('.') ? '' : ' ')
+        .join(badCommentSplit ? '' : ' ')
 
       const [, tagName, comment] = fullText.match(/^@\w+\s+([$\w.]+)\s+(.*)$/)!
       return {
@@ -67,8 +67,8 @@ function getCommentFromPropertyLikeTag (node: ts.Node, name: string, tagName: st
   return tag ? tag.comment || '' : ''
 }
 
-export const getPropertyComment = partialRight(getCommentFromPropertyLikeTag, ['property', 'prop'])
-export const getParamComment = partialRight(getCommentFromPropertyLikeTag, ['param'])
+export const getPropertyComment = partial(getCommentFromPropertyLikeTag, ['property', 'prop'])
+export const getParamComment = partial(getCommentFromPropertyLikeTag, ['param'])
 
 export function createCommentFromJSDoc (node: ts.JSDoc): DocNodeComment {
   return {

@@ -1,4 +1,4 @@
-import { TypeDocNode, SimpleTypeDocNode, DocNodeKind, ObjectTypeDocNode } from '../schema'
+import { TypeDocNode, SimpleTypeDocNode, DocNodeKind, ObjectTypeDocNode, FunctionTypeDocNode } from '../schema'
 import * as ts from 'typescript'
 import { last } from 'lodash'
 import { resolveName } from '../index'
@@ -99,6 +99,32 @@ export function convertTupleTypeNode (node: ts.TupleTypeNode, context: Context):
   }
 }
 
+function convertFunctionTypeNode (node: ts.FunctionTypeNode, context: Context): FunctionTypeDocNode {
+  const returnType = node.type || ts.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword)
+
+  return {
+    ...getBaseTypeNode(node, context),
+    kind: DocNodeKind.functionTypeDocNode,
+    genericTypes: [],
+    parameters: node.parameters.map(param => convertParameterDeclaration(param, context)),
+    returnType: convertTypeInternal(returnType, context)
+  }
+}
+
+function convertParameterDeclaration (param: ts.ParameterDeclaration, context: Context): TypeDocNode {
+  const paramName = resolveName(param.name).replace(/^__(\d+)$/, 'param$1')
+  const typeNode = param.type ? param.type : ts.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword)
+
+  const doc = convertTypeInternal(typeNode, {
+    ...context,
+    nameScope: [ ...context.nameScope, paramName ]
+  })
+  doc.optional = !!param.questionToken
+  if (param.dotDotDotToken) doc.rest = true
+
+  return doc
+}
+
 function stringifyTypeNode (node: ts.TypeNode): string {
   if (ts.isUnionTypeNode(node)) {
     return node.types.map(stringifyTypeNode).join(' | ')
@@ -132,6 +158,9 @@ function convertTypeInternal (node: ts.TypeNode, context: Context): TypeDocNode 
   }
   if (ts.isTupleTypeNode(node)) {
     return convertTupleTypeNode(node, { ...context })
+  }
+  if (ts.isFunctionTypeNode(node)) {
+    return convertFunctionTypeNode(node, { ...context })
   }
   return convertSimpleTypeNode(node, { ...context })
 }

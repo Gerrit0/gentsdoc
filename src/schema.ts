@@ -11,7 +11,8 @@ export enum DocNodeKind {
   type = 256,
   simpleType = 257, // type | 1
   tupleType = 258, // type | 2
-  objectType = 260 // type | 4
+  objectType = 260, // type | 4
+  functionTypeDocNode = 264 // type | 8
 }
 
 export interface DocNode {
@@ -222,4 +223,14 @@ export interface TupleTypeDocNode extends TypeDocNode {
 export interface ObjectTypeDocNode extends TypeDocNode {
   kind: DocNodeKind.objectType
   members: TypeDocNode[]
+}
+
+/**
+ * Function types
+ */
+export interface FunctionTypeDocNode extends TypeDocNode {
+  kind: DocNodeKind.functionTypeDocNode
+  genericTypes: TypeDocNode[]
+  parameters: TypeDocNode[]
+  returnType: TypeDocNode
 }

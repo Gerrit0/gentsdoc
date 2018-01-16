@@ -4,6 +4,7 @@ import { getFileComment, warn } from '../helpers'
 import { toArray } from 'lodash'
 import { convertEnum } from './enum'
 import { convertFunction } from './index'
+import { convertAlias } from './alias'
 
 export function convertFile (file: ts.SourceFile, checker: ts.TypeChecker): FileDocNode {
   const doc: FileDocNode = {
@@ -47,6 +48,9 @@ export function convertFile (file: ts.SourceFile, checker: ts.TypeChecker): File
     }
     if (declarations.some(ts.isFunctionDeclaration)) {
       doc.functions.push(convertFunction(symbol, checker))
+    }
+    if (declarations.some(ts.isTypeAliasDeclaration)) {
+      doc.types.push(convertAlias(symbol))
     }
   })
 
