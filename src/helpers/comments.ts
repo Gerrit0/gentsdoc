@@ -44,13 +44,13 @@ export function getFileComment (file: ts.SourceFile): DocNodeComment {
   return comment
 }
 
-function getCommentFromPropertyLikeTag (node: ts.Node, name: string, tagName: string): string {
+function getCommentFromPropertyLikeTag (node: ts.Node, name: string, tagName: string[]): string {
   const doc = getJSDoc(node)
   if (!doc) return ''
 
   const tag = toArray(doc.tags)
     .filter(ts.isJSDocPropertyLikeTag)
-    .filter(tag => tag.tagName.text === tagName)
+    .filter(tag => tagName.includes(tag.tagName.text))
     .map(tag => {
       // "@param arg.0" will result in the name "arg." as 0 is not a valid identifier.
       // To support documenting tuples, override this.
@@ -67,8 +67,8 @@ function getCommentFromPropertyLikeTag (node: ts.Node, name: string, tagName: st
   return tag ? tag.comment || '' : ''
 }
 
-export const getPropertyComment = partialRight(getCommentFromPropertyLikeTag, 'property')
-export const getParamComment = partialRight(getCommentFromPropertyLikeTag, 'param')
+export const getPropertyComment = partialRight(getCommentFromPropertyLikeTag, ['property', 'prop'])
+export const getParamComment = partialRight(getCommentFromPropertyLikeTag, ['param'])
 
 export function createCommentFromJSDoc (node: ts.JSDoc): DocNodeComment {
   return {

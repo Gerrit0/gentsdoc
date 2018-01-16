@@ -3,6 +3,7 @@ import * as ts from 'typescript'
 import { getFileComment, warn } from '../helpers'
 import { toArray } from 'lodash'
 import { convertEnum } from './enum'
+import { convertFunction } from './index'
 
 export function convertFile (file: ts.SourceFile, checker: ts.TypeChecker): FileDocNode {
   const doc: FileDocNode = {
@@ -20,7 +21,7 @@ export function convertFile (file: ts.SourceFile, checker: ts.TypeChecker): File
   const moduleSymbol = checker.getSymbolAtLocation(file)
 
   if (!moduleSymbol) {
-    warn('File is not a module. No documentation will be generated', file, file)
+    warn(`${file.fileName} is not a module. No documentation will be generated`)
     return doc
   }
 
@@ -42,7 +43,10 @@ export function convertFile (file: ts.SourceFile, checker: ts.TypeChecker): File
 
     // export enum Enum1, export class Class1
     if (declarations.some(ts.isEnumDeclaration)) {
-      doc.enumerations.push(convertEnum(symbol, file))
+      doc.enumerations.push(convertEnum(symbol))
+    }
+    if (declarations.some(ts.isFunctionDeclaration)) {
+      doc.functions.push(convertFunction(symbol, checker))
     }
   })
 

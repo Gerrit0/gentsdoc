@@ -1,16 +1,15 @@
 import { EnumDocNode, DocNodeKind } from '../schema'
 import * as ts from 'typescript'
-import { getCommentFromSymbol, resolveName, getCommentFromNode, resolveExpression, getNodeSource } from '../helpers'
+import { getCommentFromSymbol, resolveName, getCommentFromNode, resolveExpression } from '../helpers'
 import { toArray, toNumber, isNaN } from 'lodash'
 
-export function convertEnum (symbol: ts.Symbol, file: ts.SourceFile): EnumDocNode {
+export function convertEnum (symbol: ts.Symbol): EnumDocNode {
   const doc: EnumDocNode = {
     name: symbol.name,
     kind: DocNodeKind.enum,
     const: false,
     jsdoc: getCommentFromSymbol(symbol),
-    members: [],
-    sources: []
+    members: []
   }
 
   const declarations = toArray(symbol.declarations)
@@ -21,8 +20,6 @@ export function convertEnum (symbol: ts.Symbol, file: ts.SourceFile): EnumDocNod
     .some(d =>
       d.some(mod => mod.kind === ts.SyntaxKind.ConstKeyword)
     )
-
-  declarations.forEach(declaration => doc.sources.push(getNodeSource(declaration, file)))
 
   const members = declarations
     .map(declaration => declaration.members)
@@ -46,8 +43,7 @@ export function convertEnum (symbol: ts.Symbol, file: ts.SourceFile): EnumDocNod
       kind: DocNodeKind.enumMember,
       jsdoc: getCommentFromNode(member),
       type,
-      value,
-      source: getNodeSource(member, file)
+      value
     })
   })
 

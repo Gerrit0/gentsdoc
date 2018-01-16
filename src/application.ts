@@ -6,27 +6,19 @@ import { convertFile } from './converters'
 export class Application {
   @Option({
     flag: 'include',
-    help: 'Specify files to be included. By default, all .ts files will be included.',
-    default: ['**/*.ts'],
+    help: 'Specify files to be included. By default, all declaration files will be included.',
+    default: ['**/*.d.ts'],
     type: OptionType.stringArray
   })
   include: string[]
 
   @Option({
     flag: 'exclude',
-    help: 'Specify files to be excluded from the output. Defaults to excluding node_modules, .git, and .spec.ts and .test.ts files.',
-    default: ['**/*.{spec,test}.ts', 'node_modules', '.git'],
+    help: 'Specify files to be excluded from the output. Defaults to excluding node_modules, .git, and .spec.d.ts and .test.d.ts files.',
+    default: ['**/*.{spec,test}.d.ts', 'node_modules', '.git'],
     type: OptionType.stringArray
   })
   exclude: string[]
-
-  @Option({
-    flag: 'includeDeclarations',
-    help: 'If true, parse .d.ts files, otherwise ignore them.',
-    default: false,
-    type: OptionType.boolean
-  })
-  includeDeclarations: boolean
 
   documentFiles (root: string = '.'): FileDocNode[] {
     const files = findFiles(this.include, this.exclude, root)
@@ -52,7 +44,7 @@ export class Application {
     return [
       includePatterns.some(pattern => pattern.match(relativeFile)),
       excludePatterns.every(pattern => !pattern.match(relativeFile)),
-      this.includeDeclarations || !file.isDeclarationFile
+      file.isDeclarationFile
     ].every(Boolean)
   }
 }

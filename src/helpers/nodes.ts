@@ -10,7 +10,9 @@ import {
 
   DocNodeKind,
   TypeDocNode,
-  SourceDescription
+  TupleTypeDocNode,
+  ObjectTypeDocNode,
+  SimpleTypeDocNode
 } from '../schema'
 
 import * as ts from 'typescript'
@@ -31,13 +33,37 @@ export const isFunctionDocNode = (node: DocNode): node is FunctionDocNode => nod
 
 export const isTypeDocNode = (node: DocNode): node is TypeDocNode => (node.kind & DocNodeKind.type) !== 0
 
-export type Name = ts.Identifier | ts.StringLiteral | ts.NumericLiteral | ts.ComputedPropertyName | ts.QualifiedName
+export const isTupleTypeDocNode = (node: DocNode): node is TupleTypeDocNode => node.kind === DocNodeKind.tupleType
+
+export const isObjectTypeDocNode = (node: DocNode): node is ObjectTypeDocNode => node.kind === DocNodeKind.objectType
+
+export const isSimpleTypeDocNode = (node: DocNode): node is SimpleTypeDocNode => node.kind === DocNodeKind.simpleType
+
+export function stringifyType (node: TypeDocNode): string {
+  if (isSimpleTypeDocNode(node)) {
+    return node.type
+  }
+  if (isTupleTypeDocNode(node)) {
+    const memberTypes = node.members.map(stringifyType)
+    return `[ ${memberTypes.join(', ')} ]`
+  }
+  if (isObjectTypeDocNode(node)) {
+    const memberTypes = node.members.map(member => {
+      return `${member.name}: ${stringifyType(member)}`
+    })
+    return `{ ${memberTypes.join(', ')} }`
+  }
+  return '' // Never
+}
+
+export type Name = ts.Identifier | ts.StringLiteral | ts.NumericLiteral | ts.ComputedPropertyName | ts.QualifiedName | ts.BindingPattern
 
 export function resolveName (name?: Name): string {
   // Should never happen.
   if (!name) throw new Error('Node does not have a name.')
   // Not sure when this happens yet.
   if (ts.isComputedPropertyName(name)) throw new Error('Unable to resolve computed names.')
+  if (ts.isObjectBindingPattern(name) || ts.isArrayBindingPattern(name)) throw new Error('Unable to resolve this.')
   if (ts.isQualifiedName(name)) return resolveName(name.left) + '.' + name.right.text
 
   return name.text
@@ -50,13 +76,4 @@ export function resolveExpression (node: ts.Expression | undefined): string {
     return node.text
   }
   return node.getText()
-}
-
-export function getNodeSource (node: ts.Node, file: ts.SourceFile): SourceDescription {
-  const { line, character } = file.getLineAndCharacterOfPosition(node.getStart())
-  return {
-    file: file.fileName,
-    line,
-    character
-  }
 }

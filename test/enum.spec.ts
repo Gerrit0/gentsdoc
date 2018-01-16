@@ -3,7 +3,7 @@ import test from 'ava'
 import { Application } from '../src'
 
 const app = new Application()
-app.include = ['test/enum.ts']
+app.include = ['test/enum.d.ts']
 
 const [docs] = app.documentFiles('test')
 
@@ -21,5 +21,5 @@ tests.forEach((title, index) => test(title, t => {
 }))
 
 test('Correct number of documented enumerations', t => {
-  t.is(tests.length, docs.enumerations.length)
+  t.is(docs.enumerations.length, tests.length)
 })

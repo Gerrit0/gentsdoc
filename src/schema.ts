@@ -1,16 +1,17 @@
 export enum DocNodeKind {
   file = 0,
   function = 1,
-  enum = 2,
-  enumMember = 4,
-  class = 8,
-  typeInterface = 16,
-  typeAlias = 32,
-  variable = 64,
-  type = 128,
-  simpleType = 129, // type | 1
-  tupleType = 130, // type | 2
-  objectType = 132 // type | 4
+  functionSignature = 2,
+  enum = 4,
+  enumMember = 8,
+  class = 16,
+  typeInterface = 32,
+  typeAlias = 64,
+  variable = 128,
+  type = 256,
+  simpleType = 257, // type | 1
+  tupleType = 258, // type | 2
+  objectType = 260 // type | 4
 }
 
 export interface DocNode {
@@ -54,15 +55,6 @@ export interface FileDocNode extends DocNode {
    * The default export, can be any type.
    */
   default?: DocNode
-}
-
-/**
- * Used to represent where in a file the doc node came from
- */
-export interface SourceDescription {
-  file: string
-  line: number
-  character: number
 }
 
 /**
@@ -129,7 +121,6 @@ export interface EnumDocNode extends DocNode {
   jsdoc: DocNodeComment
   const: boolean
   members: EnumMemberDocNode[]
-  sources: SourceDescription[]
 }
 
 export interface EnumMemberDocNode extends DocNode {
@@ -137,7 +128,6 @@ export interface EnumMemberDocNode extends DocNode {
   jsdoc: DocNodeComment
   type: 'string' | 'number'
   value: string
-  source: SourceDescription
 }
 
 /**
@@ -168,6 +158,8 @@ export interface FunctionDocNode extends DocNode {
 }
 
 export interface FunctionSignatureDocNode extends DocNode {
+  kind: DocNodeKind.functionSignature
+  jsdoc: DocNodeComment
   genericTypes: TypeDocNode[]
   parameters: TypeDocNode[]
   returnType: TypeDocNode
@@ -177,11 +169,22 @@ export interface FunctionSignatureDocNode extends DocNode {
  * Used within exported members to represent their type.
  */
 export interface TypeDocNode extends DocNode {
+  /**
+   * The comment for this node, marked with @param, @property, or @prop
+   */
   comment: string
+  /**
+   * True if the type is optional
+   */
+  optional: boolean
   /**
    * If applicable, the type that this type extends. Used by interfaces and potentially by generic types.
    */
   extends?: string
+  /**
+   * If applicable, generally used in object types
+   */
+  rest?: boolean
 }
 
 /**
@@ -218,5 +221,5 @@ export interface TupleTypeDocNode extends TypeDocNode {
  */
 export interface ObjectTypeDocNode extends TypeDocNode {
   kind: DocNodeKind.objectType
-  members: PropertyDocNode[]
+  members: TypeDocNode[]
 }

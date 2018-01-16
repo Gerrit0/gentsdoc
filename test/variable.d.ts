@@ -2,32 +2,33 @@
  * A const number
  * @see b
  */
-export const a: number = 1
+export const a: number
 
 /**
  * A let number
  */
-export let b = 2
+export let b
 
 /**
  * A var number
  */
 // tslint:disable-next-line no-var-keyword
-export var c = 3
+export var c
 
 /**
  * A more complex type
  * @deprecated - Use a and b instead
  */
-export const d = {
-  a: 1,
-  b: 2
+export declare const d: {
+  a: number
+  b: number
 }
+
 
 /**
  * Exported later
  */
-const e = 'string'
+declare const e = 'string'
 
 export { e }
 
@@ -39,4 +40,4 @@ export let f: number
 /**
  * A function
  */
-export const g = (a: string) => a
+export declare const g: (a: string) => string

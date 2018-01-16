@@ -67,7 +67,7 @@ export enum Test3 {
  * }
  * ```
  */
-enum Test4 {
+declare enum Test4 {
   /**
    * Letter 1
    */
