@@ -16,9 +16,7 @@ export type c = a | string
 /**
  * A function to be used with typeof
  */
-export function d (a: string): string {
-  return a
-}
+export function d (a: string): string
 
 /**
  * Typeof, cannot use @param.
