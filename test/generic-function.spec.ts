@@ -3,24 +3,16 @@ import test from 'ava'
 import { Application } from '../src/application'
 
 const app = new Application()
-app.include = ['test/function.d.ts']
+app.include = ['test/generic-function.d.ts']
 
 const [docs] = app.documentFiles('test')
 
 const tests = [
-  'A basic function',
-  'A destructured function',
-  'An object argument',
-  'An interface argument',
-  'A union argument',
-  'A destructured tuple',
-  'A nested tuple',
-  'Array destructuring',
-  'Messy destructuring',
-  'Optional parameters',
-  'Intersections and unions',
-  'A rest parameter',
-  'Rest within an object + multiple signatures'
+  'Identity',
+  'Logging Identity',
+  'getProperty',
+  'createInstance',
+  'Default type'
 ]
 
 tests.forEach((title, index) => test(title, t => {

@@ -1,6 +1,6 @@
 import test from 'ava'
 
-import { Application } from '../src'
+import { Application } from '../src/application'
 
 const app = new Application()
 app.include = ['test/enum.d.ts']

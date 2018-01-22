@@ -12,7 +12,9 @@ export enum DocNodeKind {
   simpleType = 257, // type | 1
   tupleType = 258, // type | 2
   objectType = 260, // type | 4
-  functionTypeDocNode = 264 // type | 8
+  functionTypeDocNode = 264, // type | 8
+  property = 512,
+  index = 1024
 }
 
 export interface DocNode {
@@ -101,17 +103,18 @@ export interface TypeAliasDocNode extends DocNode {
 }
 
 /**
- * @example
  * Almost everything in this file.
  */
 export interface InterfaceDocNode extends DocNode {
   kind: DocNodeKind.typeInterface
   jsdoc: DocNodeComment
   genericTypes: TypeDocNode[]
-  /**
-   * Will not contain generic types.
-   */
-  type: ObjectTypeDocNode
+  properties: PropertyDocNode[]
+  indexes: IndexSignatureDocNode[]
+  methods: FunctionDocNode[]
+  signatures: FunctionSignatureDocNode[]
+  constructors: FunctionSignatureDocNode[]
+  extends: string[]
 }
 
 /**
@@ -167,6 +170,16 @@ export interface FunctionSignatureDocNode extends DocNode {
 }
 
 /**
+ * Formatted as `[name: keyType]: type`
+ */
+export interface IndexSignatureDocNode extends DocNode {
+  kind: DocNodeKind.index,
+  jsdoc: DocNodeComment,
+  keyType: TypeDocNode
+  type: TypeDocNode
+}
+
+/**
  * Used within exported members to represent their type.
  */
 export interface TypeDocNode extends DocNode {
@@ -183,6 +196,10 @@ export interface TypeDocNode extends DocNode {
    */
   extends?: string
   /**
+   * If applicable, the initializer for this node, only used by generic types.
+   */
+  initializer?: string
+  /**
    * If applicable, generally used in object types
    */
   rest?: boolean
@@ -191,12 +208,19 @@ export interface TypeDocNode extends DocNode {
 /**
  * Used within classes and objects
  */
-export interface PropertyDocNode extends TypeDocNode {
-  readonly: boolean
+export interface PropertyDocNode extends DocNode {
+  kind: DocNodeKind.property
+
+  readonly?: boolean
+  optional?: boolean
   /**
    * Not provided for basic objects
    */
   visibility?: 'public' | 'protected' | 'private'
+
+  jsdoc: DocNodeComment
+
+  type: TypeDocNode
 }
 
 /**

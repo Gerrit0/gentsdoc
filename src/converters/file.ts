@@ -3,8 +3,9 @@ import * as ts from 'typescript'
 import { getFileComment, warn } from '../helpers'
 import { toArray } from 'lodash'
 import { convertEnum } from './enum'
-import { convertFunction } from './index'
+import { convertFunction } from './function'
 import { convertAlias } from './alias'
+import { convertInterface } from './interface'
 
 export function convertFile (file: ts.SourceFile, checker: ts.TypeChecker): FileDocNode {
   const doc: FileDocNode = {
@@ -51,6 +52,9 @@ export function convertFile (file: ts.SourceFile, checker: ts.TypeChecker): File
     }
     if (declarations.some(ts.isTypeAliasDeclaration)) {
       doc.types.push(convertAlias(symbol))
+    }
+    if (declarations.some(ts.isInterfaceDeclaration)) {
+      doc.interfaces.push(convertInterface(symbol, checker))
     }
   })
 

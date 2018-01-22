@@ -12,7 +12,8 @@ import {
   TypeDocNode,
   TupleTypeDocNode,
   ObjectTypeDocNode,
-  SimpleTypeDocNode
+  SimpleTypeDocNode,
+  FunctionTypeDocNode
 } from '../schema'
 
 import * as ts from 'typescript'
@@ -37,6 +38,8 @@ export const isTupleTypeDocNode = (node: DocNode): node is TupleTypeDocNode => n
 
 export const isObjectTypeDocNode = (node: DocNode): node is ObjectTypeDocNode => node.kind === DocNodeKind.objectType
 
+export const isFunctionTypeDocNode = (node: DocNode): node is FunctionTypeDocNode => node.kind === DocNodeKind.functionTypeDocNode
+
 export const isSimpleTypeDocNode = (node: DocNode): node is SimpleTypeDocNode => node.kind === DocNodeKind.simpleType
 
 export function stringifyType (node: TypeDocNode): string {
@@ -53,8 +56,21 @@ export function stringifyType (node: TypeDocNode): string {
     })
     return `{ ${memberTypes.join(', ')} }`
   }
-  return '' // Never
+  if (isFunctionTypeDocNode(node)) {
+    const params = node.parameters.map(param => {
+      return `${param.name}: ${stringifyType(param)}`
+    })
+    const genericTypes = node.genericTypes.map(stringifyType)
+    return (genericTypes.length ? `<${genericTypes.join(', ')}>` : '')
+      + `(${params.join(', ')}) => ${stringifyType(node.returnType)}`
+  }
+  return ''
 }
+
+export const isTSNode = (node: any): node is ts.Node => !!node.kind
+
+export const isBindingPattern = (node: ts.Node): node is ts.BindingPattern =>
+  ts.isArrayBindingPattern(node) || ts.isObjectBindingPattern(node)
 
 export type Name = ts.Identifier | ts.StringLiteral | ts.NumericLiteral | ts.ComputedPropertyName | ts.QualifiedName | ts.BindingPattern
 
@@ -63,13 +79,13 @@ export function resolveName (name?: Name): string {
   if (!name) throw new Error('Node does not have a name.')
   // Not sure when this happens yet.
   if (ts.isComputedPropertyName(name)) throw new Error('Unable to resolve computed names.')
-  if (ts.isObjectBindingPattern(name) || ts.isArrayBindingPattern(name)) throw new Error('Unable to resolve this.')
+  if (isBindingPattern(name)) throw new Error('Unable to resolve binding patterns.')
   if (ts.isQualifiedName(name)) return resolveName(name.left) + '.' + name.right.text
 
   return name.text
 }
 
-export function resolveExpression (node?: ts.Expression): string {
+export function resolveExpression (node?: ts.Expression | ts.ExpressionWithTypeArguments): string {
   if (!node) return ''
   // Resolve string literals with the text to handle backslashes
   if (ts.isStringLiteral(node)) {

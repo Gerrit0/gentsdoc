@@ -1,8 +1,8 @@
-import { FunctionDocNode, FunctionSignatureDocNode, DocNodeKind, TypeDocNode } from '../schema'
+import { FunctionDocNode, FunctionSignatureDocNode, DocNodeKind, TypeDocNode, SimpleTypeDocNode } from '../schema'
 import * as ts from 'typescript'
 import { toArray, partial } from 'lodash'
-import { warn, getCommentFromNode, getParamComment } from '../index'
-import { convertType } from './type'
+import { warn, getCommentFromNode, getParamComment, resolveName, isBindingPattern } from '../helpers'
+import { convertType, stringifyTypeNode } from './type'
 
 export function convertFunction (
   symbol: ts.Symbol, checker: ts.TypeChecker
@@ -22,55 +22,65 @@ export function convertFunction (
         return
       }
 
-      doc.signatures.push(convertSignature(signature, declaration, checker))
+      doc.signatures.push(convertSignature(declaration))
     })
 
   return doc
 }
 
-function convertSignature (
-  signature: ts.Signature, declaration: ts.FunctionDeclaration, checker: ts.TypeChecker
+export function convertSignature (
+  signature: ts.FunctionDeclaration | ts.MethodDeclaration | ts.MethodSignature | ts.CallSignatureDeclaration | ts.ConstructSignatureDeclaration
 ): FunctionSignatureDocNode {
+  const jsdoc = getCommentFromNode(signature)
 
-  const jsdoc = getCommentFromNode(declaration)
-
-  // Return type
-  const returnTypeNode = checker.typeToTypeNode(signature.getReturnType(), declaration)
   const returnTag = jsdoc.tags.find(tag => ['return', 'returns'].includes(tag.tagName))
   // Only get the comment for the root for complex return types
   const getReturnComment = (s: string) => s ? '' :
     returnTag ? returnTag.comment : ''
-  const returnType = convertType(returnTypeNode, getReturnComment)
+  const returnType = convertType(
+    signature.type,
+    getReturnComment
+  )
 
   return {
-    name: declaration.name ? declaration.name.text : '__unknown',
+    name: signature.name ? resolveName(signature.name) : '__unknown',
     jsdoc: {
       ...jsdoc,
       tags: jsdoc.tags.filter(tag => tag.tagName !== 'param')
     },
     kind: DocNodeKind.functionSignature,
-    genericTypes: [],
-    parameters: signature.getParameters().map(partial(convertParameter, declaration)),
+    genericTypes: toArray(signature.typeParameters).map(partial(convertTypeParameter, signature)),
+    parameters: signature.parameters.map(partial(convertParameter, signature)),
     returnType
   }
 }
 
-function convertParameter (
-  commentNode: ts.Node, param: ts.Symbol
-): TypeDocNode {
-  const declaration = param.valueDeclaration
-  if (!declaration || !ts.isParameter(declaration)) {
-    // Should never happen
-    throw new Error('Missing parameter declaration')
+export function convertTypeParameter (
+  commentNode: ts.Node, param: ts.TypeParameterDeclaration
+): SimpleTypeDocNode {
+  const name = resolveName(param.name)
+  const extendsType = param.constraint ? stringifyTypeNode(param.constraint) : undefined
+  const initializer = param.default ? stringifyTypeNode(param.default) : undefined
+
+  return {
+    name,
+    kind: DocNodeKind.simpleType,
+    type: name, // This defines a new type
+    comment: getParamComment(commentNode, resolveName(param.name)),
+    optional: !!param.default,
+    extends: extendsType,
+    initializer
   }
+}
 
-  // TODO: Some duplicate code here from type.ts, try to merge if possible
-  const paramName = param.name.replace(/^__(\d+)$/, 'param$1')
-  const typeNode = declaration.type ? declaration.type : ts.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword)
+export function convertParameter (
+  commentNode: ts.Node, param: ts.ParameterDeclaration, index: number
+): TypeDocNode {
+  const paramName = isBindingPattern(param.name) ? `param${index}` : resolveName(param.name)
 
-  const doc = convertType(typeNode, partial(getParamComment, commentNode), paramName)
-  doc.optional = !!declaration.questionToken
-  if (declaration.dotDotDotToken) doc.rest = true
+  const doc = convertType(param.type, partial(getParamComment, commentNode), paramName)
+  doc.optional = !!param.questionToken
+  if (param.dotDotDotToken) doc.rest = true
 
   return doc
 }

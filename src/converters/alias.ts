@@ -1,6 +1,6 @@
 import { TypeAliasDocNode, DocNodeKind } from '../schema'
 import * as ts from 'typescript'
-import { getCommentFromSymbol, getPropertyComment, getParamComment } from '../index'
+import { getCommentFromSymbol, getPropertyComment, getParamComment } from '../helpers'
 import { toArray, partial } from 'lodash'
 import { convertType } from './type'
 

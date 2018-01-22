@@ -1,7 +1,7 @@
 import { TypeDocNode, SimpleTypeDocNode, DocNodeKind, ObjectTypeDocNode, FunctionTypeDocNode } from '../schema'
 import * as ts from 'typescript'
 import { last } from 'lodash'
-import { resolveName } from '../index'
+import { resolveName } from '../helpers'
 
 /**
  * Not provided by Typescript.
@@ -44,12 +44,12 @@ interface Context {
  * Since we only care if the questionToken property exists, cast to any.
  * @param node the node to test
  */
-const hasQuestionToken = <T extends ts.Node>(node: T): boolean => !!(node as any).questionToken
+const hasQuestionToken = (node: any): boolean => !!node.questionToken
 /**
  * Since we only care if the questionToken property exists, cast to any.
  * @param node the node to test
  */
-const hasRestToken = <T extends ts.Node>(node: T): boolean => !!(node as any).dotDotDotToken
+const hasRestToken = (node: ts.Node): boolean => !!(node as any).dotDotDotToken
 
 function getBaseTypeNode (node: ts.TypeNode, { nameScope, getComment }: Context): TypeDocNode {
   const doc: TypeDocNode = {
@@ -79,11 +79,12 @@ export function convertTypeLiteralTypeNode (node: ts.TypeLiteralNode, context: C
     members: node.members
       .filter(ts.isPropertySignature)
       .map(member => {
-        const type = member.type ? member.type : ts.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword)
-        return convertTypeInternal(type, {
+        const memberDoc = convertTypeInternal(member.type, {
           ...context,
           nameScope: [...context.nameScope, member.name.getText()]
         })
+        memberDoc.optional = hasQuestionToken(member)
+        return memberDoc
       })
   }
 }
@@ -100,22 +101,18 @@ export function convertTupleTypeNode (node: ts.TupleTypeNode, context: Context):
 }
 
 function convertFunctionTypeNode (node: ts.FunctionTypeNode, context: Context): FunctionTypeDocNode {
-  const returnType = node.type || ts.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword)
-
   return {
     ...getBaseTypeNode(node, context),
     kind: DocNodeKind.functionTypeDocNode,
     genericTypes: [],
     parameters: node.parameters.map(param => convertParameterDeclaration(param, context)),
-    returnType: convertTypeInternal(returnType, context)
+    returnType: convertTypeInternal(node.type, context)
   }
 }
 
 function convertParameterDeclaration (param: ts.ParameterDeclaration, context: Context): TypeDocNode {
   const paramName = resolveName(param.name).replace(/^__(\d+)$/, 'param$1')
-  const typeNode = param.type ? param.type : ts.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword)
-
-  const doc = convertTypeInternal(typeNode, {
+  const doc = convertTypeInternal(param.type, {
     ...context,
     nameScope: [ ...context.nameScope, paramName ]
   })
@@ -125,7 +122,7 @@ function convertParameterDeclaration (param: ts.ParameterDeclaration, context: C
   return doc
 }
 
-function stringifyTypeNode (node: ts.TypeNode): string {
+export function stringifyTypeNode (node: ts.TypeNode): string {
   if (ts.isUnionTypeNode(node)) {
     return node.types.map(stringifyTypeNode).join(' | ')
   }
@@ -144,7 +141,10 @@ function stringifyTypeNode (node: ts.TypeNode): string {
   return node.getText()
 }
 
-function convertTypeInternal (node: ts.TypeNode, context: Context): TypeDocNode {
+function convertTypeInternal (node: ts.TypeNode | undefined, context: Context): TypeDocNode {
+  if (!node) {
+    return convertSimpleTypeNode(ts.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword), { ...context })
+  }
 
   if ([
     isKeywordTypeNode,
@@ -165,7 +165,7 @@ function convertTypeInternal (node: ts.TypeNode, context: Context): TypeDocNode 
   return convertSimpleTypeNode(node, { ...context })
 }
 
-export function convertType (node: ts.TypeNode, getComment: (name: string) => string, name?: string): TypeDocNode {
+export function convertType (node: ts.TypeNode | undefined, getComment: (name: string) => string = () => '', name?: string): TypeDocNode {
   const context: Context = {
     nameScope: name ? [name] : [],
     getComment: (scope: string[]) => getComment(scope.join('.'))
