@@ -1,7 +1,7 @@
 import { FunctionDocNode, FunctionSignatureDocNode, DocNodeKind, TypeDocNode, SimpleTypeDocNode } from '../schema'
 import * as ts from 'typescript'
 import { toArray, partial } from 'lodash'
-import { warn, getCommentFromNode, getParamComment, resolveName, isBindingPattern } from '../helpers'
+import { warn, getCommentFromNode, getParamComment, resolveName, isBindingPattern, getVisibility } from '../helpers'
 import { convertType, stringifyTypeNode } from './type'
 
 export function convertFunction (
@@ -29,7 +29,7 @@ export function convertFunction (
 }
 
 export function convertSignature (
-  signature: ts.FunctionDeclaration | ts.MethodDeclaration | ts.MethodSignature | ts.CallSignatureDeclaration | ts.ConstructSignatureDeclaration
+  signature: ts.FunctionDeclaration | ts.MethodDeclaration | ts.MethodSignature | ts.CallSignatureDeclaration | ts.ConstructSignatureDeclaration | ts.ConstructorDeclaration | ts.FunctionTypeNode
 ): FunctionSignatureDocNode {
   const jsdoc = getCommentFromNode(signature)
 
@@ -42,17 +42,21 @@ export function convertSignature (
     getReturnComment
   )
 
-  return {
+  const doc: FunctionSignatureDocNode = {
     name: signature.name ? resolveName(signature.name) : '__unknown',
-    jsdoc: {
-      ...jsdoc,
-      tags: jsdoc.tags.filter(tag => tag.tagName !== 'param')
-    },
+    jsdoc,
     kind: DocNodeKind.functionSignature,
     genericTypes: toArray(signature.typeParameters).map(partial(convertTypeParameter, signature)),
     parameters: signature.parameters.map(partial(convertParameter, signature)),
     returnType
   }
+
+  // Don't include visibility if it is guaranteed to be public
+  if (!ts.isFunctionDeclaration(signature)) {
+    doc.visibility = getVisibility(signature.modifiers)
+  }
+
+  return doc
 }
 
 export function convertTypeParameter (
@@ -66,7 +70,7 @@ export function convertTypeParameter (
     name,
     kind: DocNodeKind.simpleType,
     type: name, // This defines a new type
-    comment: getParamComment(commentNode, resolveName(param.name)),
+    comment: getParamComment(commentNode, name),
     optional: !!param.default,
     extends: extendsType,
     initializer

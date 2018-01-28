@@ -12,14 +12,11 @@
  - Support for documenting regular variable exports.
 1. CLI entry point for specifying input and output files and options for treating declaration files.
 1. Programmable entry point with the same capabilities as the CLI entry point.
-
-## Stretch goals
-
 1. Basic markdown theme.
 1. HTML theme with support for user (sub?)themes.
 1. Plugin structure for custom themes if the html theme is too limiting.
 
-## Non-goals (for the first 40 hours at a minimum)
+## Non-goals (for now)
 
 1. Documenting files which are not ES Modules.
 1. Support for namespaces. See the [Typescript handbook](https://www.typescriptlang.org/docs/handbook/modules.html#do-not-use-namespaces-in-modules) for why you should not use namespaces in modules.

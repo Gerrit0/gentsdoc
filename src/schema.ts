@@ -25,6 +25,8 @@ export interface DocNode {
   kind: DocNodeKind
 }
 
+export type DocNodeVisibility = 'public' | 'private' | 'protected'
+
 export interface FileDocNode extends DocNode {
   kind: DocNodeKind.file
 
@@ -140,9 +142,11 @@ export interface EnumMemberDocNode extends DocNode {
 export interface ClassDocNode extends DocNode {
   kind: DocNodeKind.class
   extends?: string
+  implements: string[]
   abstract: boolean
   jsdoc: DocNodeComment
   genericTypes: TypeDocNode[]
+  constructors: FunctionSignatureDocNode[]
   properties: PropertyDocNode[]
   methods: FunctionDocNode[]
   staticProperties: PropertyDocNode[]
@@ -167,6 +171,11 @@ export interface FunctionSignatureDocNode extends DocNode {
   genericTypes: TypeDocNode[]
   parameters: TypeDocNode[]
   returnType: TypeDocNode
+  visibility?: DocNodeVisibility
+  /**
+   * Only used in classes
+   */
+  abstract?: boolean
 }
 
 /**
@@ -213,10 +222,11 @@ export interface PropertyDocNode extends DocNode {
 
   readonly?: boolean
   optional?: boolean
+  visibility: DocNodeVisibility
   /**
-   * Not provided for basic objects
+   * Only used in classes
    */
-  visibility?: 'public' | 'protected' | 'private'
+  abstract?: boolean
 
   jsdoc: DocNodeComment
 

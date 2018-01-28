@@ -13,8 +13,11 @@ import {
   TupleTypeDocNode,
   ObjectTypeDocNode,
   SimpleTypeDocNode,
-  FunctionTypeDocNode
+  FunctionTypeDocNode,
+  DocNodeVisibility
 } from '../schema'
+
+import { toArray } from 'lodash'
 
 import * as ts from 'typescript'
 
@@ -92,4 +95,15 @@ export function resolveExpression (node?: ts.Expression | ts.ExpressionWithTypeA
     return node.text
   }
   return node.getText()
+}
+
+export function getVisibility (modifiers?: ts.NodeArray<ts.Modifier>): DocNodeVisibility {
+  for (const { kind } of toArray(modifiers)) {
+    switch (kind) {
+      case ts.SyntaxKind.PrivateKeyword: return 'private'
+      case ts.SyntaxKind.ProtectedKeyword: return 'protected'
+      case ts.SyntaxKind.PublicKeyword: return 'public'
+    }
+  }
+  return 'public'
 }

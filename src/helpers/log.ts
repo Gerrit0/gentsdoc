@@ -1,3 +1,3 @@
-export function warn (message: string): void {
-  console.warn('[Warning]', message)
+export function warn (...messages: string[]): void {
+  console.warn('[Warning]', ...messages)
 }

@@ -1,9 +1,10 @@
-import { InterfaceDocNode, DocNodeKind, PropertyDocNode } from '../schema'
+import { InterfaceDocNode, DocNodeKind } from '../schema'
 import * as ts from 'typescript'
 import { toArray, remove, partial, flatMap } from 'lodash'
-import { warn, getCommentFromSymbol, isTSNode, resolveName, getCommentFromNode, getPropertyComment, resolveExpression } from '../helpers'
+import { warn, getCommentFromSymbol, isTSNode, resolveName, getCommentFromNode, resolveExpression } from '../helpers'
 import { convertSignature, convertTypeParameter } from './function'
 import { convertType } from './type'
+import { convertProperty } from './property'
 
 /**
  * Assumes that only one element with match the predicate, if multiple elements match, all will be removed
@@ -53,7 +54,7 @@ export function convertInterface (symbol: ts.Symbol, _checker: ts.TypeChecker): 
       } else if (ts.isPropertySignature(node)) {
         // Should never remove anything.
         remove(doc.properties, prop => resolveName(node.name) === prop.name)
-        resolveProperty(node)
+        doc.properties.push(convertProperty(node))
       } else if (ts.isIndexSignatureDeclaration(node)) {
         doc.indexes.push({
           kind: DocNodeKind.index,
@@ -81,24 +82,6 @@ export function convertInterface (symbol: ts.Symbol, _checker: ts.TypeChecker): 
     functionDoc.signatures.push(convertSignature(node))
 
     doc.methods.push(functionDoc)
-  }
-
-  function resolveProperty (node: ts.PropertySignature): void {
-    const jsdoc = getCommentFromNode(node)
-
-    const prop: PropertyDocNode = {
-      kind: DocNodeKind.property,
-      name: resolveName(node.name),
-      type: convertType(node.type, partial(getPropertyComment, node)),
-      jsdoc: {
-        ...jsdoc,
-        tags: jsdoc.tags.filter(tag => !['param', 'prop', 'property'].includes(tag.tagName))
-      },
-      optional: !!node.questionToken,
-      readonly: toArray(node.modifiers).some(m => m.kind === ts.SyntaxKind.ReadonlyKeyword)
-    }
-
-    doc.properties.push(prop)
   }
 
   return doc

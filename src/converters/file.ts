@@ -6,6 +6,7 @@ import { convertEnum } from './enum'
 import { convertFunction } from './function'
 import { convertAlias } from './alias'
 import { convertInterface } from './interface'
+import { convertClass } from './class'
 
 export function convertFile (file: ts.SourceFile, checker: ts.TypeChecker): FileDocNode {
   const doc: FileDocNode = {
@@ -55,6 +56,9 @@ export function convertFile (file: ts.SourceFile, checker: ts.TypeChecker): File
     }
     if (declarations.some(ts.isInterfaceDeclaration)) {
       doc.interfaces.push(convertInterface(symbol, checker))
+    }
+    if (declarations.some(ts.isClassDeclaration)) {
+      doc.classes.push(convertClass(symbol))
     }
   })
 

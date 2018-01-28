@@ -73,7 +73,9 @@ export const getParamComment = partial(getCommentFromPropertyLikeTag, ['param'])
 export function createCommentFromJSDoc (node: ts.JSDoc): DocNodeComment {
   return {
     comment: node.comment || '',
-    tags: toArray(node.tags).map(createTag)
+    tags: toArray(node.tags)
+      .map(createTag)
+      .filter(tag => !['param', 'prop', 'property'].includes(tag.tagName))
   }
 }
 

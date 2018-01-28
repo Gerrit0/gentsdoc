@@ -7,18 +7,13 @@ import { convertType } from './type'
 export function convertAlias (symbol: ts.Symbol): TypeAliasDocNode {
   const alias = toArray(symbol.declarations).find(ts.isTypeAliasDeclaration)!
 
-  const jsdoc = getCommentFromSymbol(symbol)
-
   // If this is a function, use @param instead of @prop
   const getComment = ts.isFunctionTypeNode(alias.type) ? getParamComment : getPropertyComment
 
   return {
     name: symbol.name,
     kind: DocNodeKind.typeAlias,
-    jsdoc: {
-      ...jsdoc,
-      tags: jsdoc.tags.filter(tag => !['prop', 'property', 'param'].includes(tag.tagName))
-    },
+    jsdoc: getCommentFromSymbol(symbol),
     genericTypes: [],
     type: convertType(alias.type, partial(getComment, alias), '')
   }
