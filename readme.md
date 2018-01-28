@@ -1,9 +1,5 @@
 # Gentsdoc
 
-This project is an experiment to see how much of a working documentation generator for typescript projects can be completed in ~40 hours of work.
-
-This is my fourth attempt at documentation generation, in total I have spent at the time of this project's start roughly 20 hours playing with Typescript's compiler API and an additional five hours poking around in [Typedoc](https://github.com/TypeStrong/typedoc)'s source.
-
 ## Goals
 
 1. JSON schema for documenting Typescript projects, the following features should be documented:
