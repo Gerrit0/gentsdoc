@@ -1,7 +1,7 @@
 import { EnumDocNode, DocNodeKind } from '../schema'
 import * as ts from 'typescript'
 import { getCommentFromSymbol, resolveName, getCommentFromNode, resolveExpression } from '../helpers'
-import { toArray, toNumber, isNaN } from 'lodash'
+import { toArray, toNumber, flatMap } from 'lodash'
 
 export function convertEnum (symbol: ts.Symbol): EnumDocNode {
   const doc: EnumDocNode = {
@@ -15,22 +15,17 @@ export function convertEnum (symbol: ts.Symbol): EnumDocNode {
   const declarations = toArray(symbol.declarations)
     .filter(ts.isEnumDeclaration)
 
-  doc.const = declarations
-    .map(d => toArray(d.modifiers))
-    .some(d =>
-      d.some(mod => mod.kind === ts.SyntaxKind.ConstKeyword)
-    )
+  doc.const = flatMap(declarations, d => toArray(d.modifiers))
+    .some(mod => mod.kind === ts.SyntaxKind.ConstKeyword)
 
-  const members = declarations
-    .map(declaration => declaration.members)
-    .reduce<ts.EnumMember[]>((all, members) => all.concat(toArray(members)), [])
+  const members = flatMap(declarations, d => toArray(d.members))
 
   let enumIndex = 0
 
   members.forEach(member => {
     const value = member.initializer ? resolveExpression(member.initializer) : enumIndex.toString()
     const index = toNumber(value)
-    if (!isNaN(index)) {
+    if (!Number.isNaN(index)) {
       enumIndex = index + 1
     }
 

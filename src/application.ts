@@ -1,7 +1,7 @@
 import { Option, OptionType, findFiles, makeMinimatch } from './helpers'
 import { FileDocNode } from './schema'
 import * as ts from 'typescript'
-import { convertFile } from './converters'
+import { convertFile } from './converters/file'
 
 export class Application {
   @Option({

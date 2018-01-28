@@ -49,7 +49,7 @@ export function convertFile (file: ts.SourceFile, checker: ts.TypeChecker): File
       doc.enumerations.push(convertEnum(symbol))
     }
     if (declarations.some(ts.isFunctionDeclaration)) {
-      doc.functions.push(convertFunction(symbol, checker))
+      doc.functions.push(convertFunction(symbol))
     }
     if (declarations.some(ts.isTypeAliasDeclaration)) {
       doc.types.push(convertAlias(symbol))

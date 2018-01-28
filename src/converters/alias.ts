@@ -15,6 +15,6 @@ export function convertAlias (symbol: ts.Symbol): TypeAliasDocNode {
     kind: DocNodeKind.typeAlias,
     jsdoc: getCommentFromSymbol(symbol),
     genericTypes: [],
-    type: convertType(alias.type, partial(getComment, alias), '')
+    type: convertType(alias.type, partial(getComment, alias))
   }
 }

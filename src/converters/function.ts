@@ -1,29 +1,19 @@
 import { FunctionDocNode, FunctionSignatureDocNode, DocNodeKind, TypeDocNode, SimpleTypeDocNode } from '../schema'
 import * as ts from 'typescript'
 import { toArray, partial } from 'lodash'
-import { warn, getCommentFromNode, getParamComment, resolveName, isBindingPattern, getVisibility } from '../helpers'
+import { getCommentFromNode, getParamComment, resolveName, isBindingPattern, getVisibility } from '../helpers'
 import { convertType, stringifyTypeNode } from './type'
 
-export function convertFunction (
-  symbol: ts.Symbol, checker: ts.TypeChecker
-): FunctionDocNode {
+export function convertFunction (symbol: ts.Symbol): FunctionDocNode {
   const doc: FunctionDocNode = {
     name: symbol.name,
     kind: DocNodeKind.function,
     signatures: []
   }
 
-  toArray(symbol.declarations)
+  doc.signatures = toArray(symbol.declarations)
     .filter(ts.isFunctionDeclaration)
-    .forEach(declaration => {
-      const signature = checker.getSignatureFromDeclaration(declaration)
-      if (!signature) {
-        warn('Failed to get signature')
-        return
-      }
-
-      doc.signatures.push(convertSignature(declaration))
-    })
+    .map(convertSignature)
 
   return doc
 }

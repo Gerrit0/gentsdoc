@@ -6,18 +6,6 @@ import { convertSignature, convertTypeParameter } from './function'
 import { convertType } from './type'
 import { convertProperty } from './property'
 
-/**
- * Assumes that only one element with match the predicate, if multiple elements match, all will be removed
- * and the first will be returned.
- * @param arr
- * @param predicate
- * @param fallback
- */
-function removeOrDefault<T> (arr: T[], predicate: (a: T) => boolean, fallback: T): T {
-  const [result] = remove(arr, predicate)
-  return result || fallback
-}
-
 export function convertInterface (symbol: ts.Symbol, _checker: ts.TypeChecker): InterfaceDocNode {
   // const int = toArray(symbol.declarations).find(ts.isInterfaceDeclaration)!
   const doc: InterfaceDocNode = {
@@ -73,15 +61,15 @@ export function convertInterface (symbol: ts.Symbol, _checker: ts.TypeChecker): 
   function resolveMethod (node: ts.MethodSignature): void {
     const name = resolveName(node.name)
 
-    const functionDoc = removeOrDefault(doc.methods, method => method.name === name, {
+    const functionDoc = doc.methods.find(method => method.name === name) || {
       kind: DocNodeKind.function,
       name,
       signatures: []
-    })
+    }
 
     functionDoc.signatures.push(convertSignature(node))
 
-    doc.methods.push(functionDoc)
+    if (!doc.methods.includes(functionDoc)) doc.methods.push(functionDoc)
   }
 
   return doc
