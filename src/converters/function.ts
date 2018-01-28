@@ -18,32 +18,45 @@ export function convertFunction (symbol: ts.Symbol): FunctionDocNode {
   return doc
 }
 
+export type Signature = ts.FunctionDeclaration | ts.MethodDeclaration | ts.MethodSignature | ts.CallSignatureDeclaration | ts.ConstructSignatureDeclaration | ts.ConstructorDeclaration | ts.FunctionTypeNode
+
 export function convertSignature (
-  signature: ts.FunctionDeclaration | ts.MethodDeclaration | ts.MethodSignature | ts.CallSignatureDeclaration | ts.ConstructSignatureDeclaration | ts.ConstructorDeclaration | ts.FunctionTypeNode
+  node: Signature | ts.PropertySignature
 ): FunctionSignatureDocNode {
-  const jsdoc = getCommentFromNode(signature)
+  const jsdoc = getCommentFromNode(node)
+
+  let fn: Signature
+  if (ts.isPropertySignature(node)) {
+    if (node.type && ts.isFunctionTypeNode(node.type)) {
+      fn = node.type
+    } else {
+      throw new Error('Tried to get the signature of an invalid node type.')
+    }
+  } else {
+    fn = node
+  }
 
   const returnTag = jsdoc.tags.find(tag => ['return', 'returns'].includes(tag.tagName))
   // Only get the comment for the root for complex return types
   const getReturnComment = (s: string) => s ? '' :
     returnTag ? returnTag.comment : ''
   const returnType = convertType(
-    signature.type,
+    fn.type,
     getReturnComment
   )
 
   const doc: FunctionSignatureDocNode = {
-    name: signature.name ? resolveName(signature.name) : '__unknown',
+    name: node.name ? resolveName(node.name) : '__unknown',
     jsdoc,
     kind: DocNodeKind.functionSignature,
-    genericTypes: toArray(signature.typeParameters).map(partial(convertTypeParameter, signature)),
-    parameters: signature.parameters.map(partial(convertParameter, signature)),
+    genericTypes: toArray(fn.typeParameters).map(partial(convertTypeParameter, node)),
+    parameters: fn.parameters.map(partial(convertParameter, node)),
     returnType
   }
 
   // Don't include visibility if it is guaranteed to be public
-  if (!ts.isFunctionDeclaration(signature)) {
-    doc.visibility = getVisibility(signature.modifiers)
+  if (!ts.isFunctionDeclaration(node)) {
+    doc.visibility = getVisibility(node.modifiers)
   }
 
   return doc

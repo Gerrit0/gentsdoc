@@ -1,6 +1,6 @@
 import { InterfaceDocNode, DocNodeKind } from '../schema'
 import * as ts from 'typescript'
-import { toArray, remove, partial, flatMap } from 'lodash'
+import { toArray, partial, flatMap } from 'lodash'
 import { warn, getCommentFromSymbol, isTSNode, resolveName, getCommentFromNode, resolveExpression } from '../helpers'
 import { convertSignature, convertTypeParameter } from './function'
 import { convertType } from './type'
@@ -29,20 +29,25 @@ export function convertInterface (symbol: ts.Symbol, _checker: ts.TypeChecker): 
     doc.extends = flatMap(extendedFrom, ex => ex.types.map(resolveExpression))
   }
 
-  toArray(symbol.declarations)
+  const declarations = toArray(symbol.declarations)
     .filter(ts.isInterfaceDeclaration)
-    .map(declaration => declaration.members)
-    .reduce<ts.TypeElement[]>((all, members) => all.concat(members), [])
-    .filter(isTSNode)
+
+  flatMap(declarations, d => toArray(d.members))
+    .filter(isTSNode) // Everything should pass
     .forEach((node: ts.Node) => {
       if (ts.isMethodSignature(node)) {
         resolveMethod(node)
+
       } else if (ts.isCallSignatureDeclaration(node)) {
         doc.signatures.push(convertSignature(node))
+
       } else if (ts.isPropertySignature(node)) {
-        // Should never remove anything.
-        remove(doc.properties, prop => resolveName(node.name) === prop.name)
+        if (node.type && ts.isFunctionTypeNode(node.type)) {
+          resolveMethod(node)
+          return
+        }
         doc.properties.push(convertProperty(node))
+
       } else if (ts.isIndexSignatureDeclaration(node)) {
         doc.indexes.push({
           kind: DocNodeKind.index,
@@ -51,14 +56,16 @@ export function convertInterface (symbol: ts.Symbol, _checker: ts.TypeChecker): 
           keyType: convertType(node.parameters[0].type),
           type: convertType(node.type)
         })
+
       } else if (ts.isConstructSignatureDeclaration(node)) {
         doc.constructors.push(convertSignature(node))
+
       } else {
         warn(`Unknown node type in interface (kind: ${ts.SyntaxKind[node.kind]})`)
       }
     })
 
-  function resolveMethod (node: ts.MethodSignature): void {
+  function resolveMethod (node: ts.MethodSignature | ts.PropertySignature): void {
     const name = resolveName(node.name)
 
     const functionDoc = doc.methods.find(method => method.name === name) || {

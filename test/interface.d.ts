@@ -158,3 +158,14 @@ export interface Merged {
 export interface Merged {
   test(a: string): string
 }
+
+/**
+ * Methods defined as properties
+ */
+export interface PropertyMethods {
+  a: () => void
+  /**
+   * @param a a string
+   */
+  b: (a: string) => string
+}

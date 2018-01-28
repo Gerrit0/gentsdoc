@@ -19,7 +19,8 @@ const tests = [
   'Shape2',
   'Square extends Shape, Shape2',
   'Hybrid types',
-  'Merged interfaces'
+  'Merged interfaces',
+  'Property methods'
 ]
 
 tests.forEach((title, index) => test(title, t => {
