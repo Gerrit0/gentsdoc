@@ -64,7 +64,7 @@ export function convertClass (symbol: ts.Symbol): ClassDocNode {
     } else if (ts.isPropertyDeclaration(member)) {
 
       if (member.type && ts.isFunctionTypeNode(member.type)) {
-        handleFunction(member.type, member)
+        handleFunction(member)
         return
       }
 
@@ -80,15 +80,9 @@ export function convertClass (symbol: ts.Symbol): ClassDocNode {
     }
   })
 
-  function handleFunction (node: ts.MethodDeclaration): void
-  function handleFunction (node: ts.FunctionTypeNode, commentNode: ts.PropertyDeclaration): void
-  function handleFunction (
-    node: ts.MethodDeclaration | ts.FunctionTypeNode,
-    commentNode?: ts.PropertyDeclaration
-  ): void {
-
-    const holder = isStatic(commentNode || node) ? doc.staticMethods : doc.methods
-    const name = resolveName(commentNode ? commentNode.name : node.name)
+  function handleFunction (node: ts.MethodDeclaration | ts.PropertyDeclaration): void {
+    const holder = isStatic(node) ? doc.staticMethods : doc.methods
+    const name = resolveName(node.name)
     const memberDoc: FunctionDocNode = holder.find(method => name === method.name) || {
       kind: DocNodeKind.function,
       name,
@@ -96,8 +90,6 @@ export function convertClass (symbol: ts.Symbol): ClassDocNode {
     }
 
     const signatureDoc = convertSignature(node)
-    // Set name correctly on property methods
-    signatureDoc.name = memberDoc.name
     memberDoc.signatures.push(signatureDoc)
     if (holder === doc.methods && isAbstract(node)) {
       signatureDoc.abstract = true

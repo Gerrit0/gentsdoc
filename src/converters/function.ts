@@ -21,12 +21,12 @@ export function convertFunction (symbol: ts.Symbol): FunctionDocNode {
 export type Signature = ts.FunctionDeclaration | ts.MethodDeclaration | ts.MethodSignature | ts.CallSignatureDeclaration | ts.ConstructSignatureDeclaration | ts.ConstructorDeclaration | ts.FunctionTypeNode
 
 export function convertSignature (
-  node: Signature | ts.PropertySignature
+  node: Signature | ts.PropertySignature | ts.PropertyDeclaration
 ): FunctionSignatureDocNode {
   const jsdoc = getCommentFromNode(node)
 
   let fn: Signature
-  if (ts.isPropertySignature(node)) {
+  if (ts.isPropertySignature(node) || ts.isPropertyDeclaration(node)) {
     if (node.type && ts.isFunctionTypeNode(node.type)) {
       fn = node.type
     } else {
