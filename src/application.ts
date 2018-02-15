@@ -10,7 +10,7 @@ export class Application {
     default: ['**/*.d.ts'],
     type: OptionType.stringArray
   })
-  include: string[]
+  include !: string []
 
   @Option({
     flag: 'exclude',
@@ -18,7 +18,7 @@ export class Application {
     default: ['**/*.{spec,test}.d.ts', 'node_modules', '.git'],
     type: OptionType.stringArray
   })
-  exclude: string[]
+  exclude !: string []
 
   documentFiles (root: string = '.'): FileDocNode[] {
     const files = findFiles(this.include, this.exclude, root)

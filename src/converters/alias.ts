@@ -1,7 +1,7 @@
 import { TypeAliasDocNode, DocNodeKind } from '../schema'
 import * as ts from 'typescript'
 import { getCommentFromSymbol, getPropertyComment, getParamComment } from '../helpers'
-import { toArray, partial } from 'lodash'
+import { toArray } from 'lodash'
 import { convertType } from './type'
 
 export function convertAlias (symbol: ts.Symbol): TypeAliasDocNode {
@@ -15,6 +15,6 @@ export function convertAlias (symbol: ts.Symbol): TypeAliasDocNode {
     kind: DocNodeKind.typeAlias,
     jsdoc: getCommentFromSymbol(symbol),
     genericTypes: [],
-    type: convertType(alias.type, partial(getComment, alias))
+    type: convertType(alias.type, getComment(alias))
   }
 }

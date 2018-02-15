@@ -1,6 +1,6 @@
 import { DocNodeComment, DocNodeTag } from '../schema'
 import * as ts from 'typescript'
-import { last, toArray, partial } from 'lodash'
+import { last, toArray, curry } from 'lodash'
 
 export function getCommentFromSymbol (symbol: ts.Symbol): DocNodeComment {
   return toArray(symbol.declarations)
@@ -67,8 +67,8 @@ function getCommentFromPropertyLikeTag (tagNames: string[], node: ts.Node, name:
   return tag ? tag.comment || '' : ''
 }
 
-export const getPropertyComment = partial(getCommentFromPropertyLikeTag, ['property', 'prop'])
-export const getParamComment = partial(getCommentFromPropertyLikeTag, ['param'])
+export const getPropertyComment = curry(getCommentFromPropertyLikeTag)(['property', 'prop'])
+export const getParamComment = curry(getCommentFromPropertyLikeTag)(['param'])
 
 export function createCommentFromJSDoc (node: ts.JSDoc): DocNodeComment {
   return {

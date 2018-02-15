@@ -85,7 +85,7 @@ export function convertParameter (
 ): TypeDocNode {
   const paramName = isBindingPattern(param.name) ? `param${index}` : resolveName(param.name)
 
-  const doc = convertType(param.type, partial(getParamComment, commentNode), paramName)
+  const doc = convertType(param.type, getParamComment(commentNode), paramName)
   doc.optional = !!param.questionToken
   if (param.dotDotDotToken) doc.rest = true
 

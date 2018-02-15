@@ -8,7 +8,7 @@ class CLI extends Application {
     default: '',
     type: OptionType.string
   })
-  project: string
+  project !: string
 
   @Option({
     flag: 'stdout',
@@ -16,7 +16,7 @@ class CLI extends Application {
     default: false,
     type: OptionType.boolean
   })
-  stdout: boolean
+  stdout !: boolean
 
   constructor () {
     super()
