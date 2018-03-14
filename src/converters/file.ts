@@ -7,6 +7,7 @@ import { convertFunction } from './function'
 import { convertAlias } from './alias'
 import { convertInterface } from './interface'
 import { convertClass } from './class'
+import { convertVariable } from './variable'
 
 export function convertFile (file: ts.SourceFile, checker: ts.TypeChecker): FileDocNode {
   const doc: FileDocNode = {
@@ -59,6 +60,9 @@ export function convertFile (file: ts.SourceFile, checker: ts.TypeChecker): File
     }
     if (declarations.some(ts.isClassDeclaration)) {
       doc.classes.push(convertClass(symbol))
+    }
+    if (declarations.some(ts.isVariableDeclaration)) {
+      doc.variables.push(convertVariable(symbol))
     }
   })
 
