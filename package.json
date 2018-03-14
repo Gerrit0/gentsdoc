@@ -7,15 +7,15 @@
   "author": "Gerrit Birkeland <gerrit@gerritbirkeland.com>",
   "license": "MIT",
   "devDependencies": {
-    "@types/lodash": "^4.14.102",
+    "@types/lodash": "^4.14.104",
     "@types/minimatch": "^3.0.3",
-    "@types/node": "^9.4.6",
+    "@types/node": "^9.4.7",
     "ava": "^0.25.0",
     "ava-ts": "^0.24.2",
-    "ts-node": "^4.1.0",
+    "ts-node": "^5.0.1",
     "tslint": "^5.9.1",
     "tslint-config-standard": "^7.0.0",
-    "typescript": "^2.7.1"
+    "typescript": "^2.7.2"
   },
   "dependencies": {
     "lodash": "^4.17.5",
