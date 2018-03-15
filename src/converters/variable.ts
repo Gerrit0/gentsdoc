@@ -1,6 +1,6 @@
 import { DocNodeKind, VariableDocNode } from '../schema'
 import * as ts from 'typescript'
-import { getPropertyComment, getCommentFromNode } from '../helpers'
+import { getPropertyComment, getCommentFromSymbol } from '../helpers'
 import { } from 'lodash'
 import { convertType } from './type'
 
@@ -12,7 +12,7 @@ export function convertVariable (symbol: ts.Symbol): VariableDocNode {
     name: symbol.name,
     kind: DocNodeKind.variable,
     type: convertType(type, getPropertyComment(declaration)),
-    jsdoc: getCommentFromNode(declaration)
+    jsdoc: getCommentFromSymbol(symbol)
   }
 
   return doc
