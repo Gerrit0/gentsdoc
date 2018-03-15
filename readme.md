@@ -3,13 +3,13 @@
 ## Goals
 
 1. JSON schema for documenting Typescript projects, the following features should be documented:
- - Enumerations, including declaration merging, string enums, and merging doc comments.
- - Functions, including multiple signatures, destructured parameters, rest parameters, and generics.
- - Classes, with support for both static and instance properties and functions and generic classes.
- - Interfaces, with support for generics and call signatures.
- - Types, with support for generics and documenting tuple types.
- - Support for both named and default exports.
- - Support for documenting regular variable exports.
+    - Enumerations, including declaration merging, string enums, and merging doc comments.
+    - Functions, including multiple signatures, destructured parameters, rest parameters, and generics.
+    - Classes, with support for both static and instance properties and functions and generic classes.
+    - Interfaces, with support for generics and call signatures.
+    - Types, with support for generics and documenting tuple types.
+    - Support for both named and default exports.
+    - Support for documenting regular variable exports.
 1. CLI entry point for specifying input and output files and options for treating declaration files.
 1. Programmable entry point with the same capabilities as the CLI entry point.
 1. Basic markdown theme.
