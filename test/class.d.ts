@@ -1,4 +1,4 @@
-/**
+/***
  * Class declarations mostly copied from the Typescript docs
  * @see https://www.typescriptlang.org/docs/handbook/classes.html
  */

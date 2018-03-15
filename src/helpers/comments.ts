@@ -1,22 +1,20 @@
 import { DocNodeComment, DocNodeTag } from '../schema'
 import * as ts from 'typescript'
-import { last, toArray, curry } from 'lodash'
+import { flatMap, toArray, curry } from 'lodash'
 
 export function getCommentFromSymbol (symbol: ts.Symbol): DocNodeComment {
-  return toArray(symbol.declarations)
-    .map(getCommentFromNode)
-    .reduce((result, { comment, tags }) => {
-      result.comment = result.comment ? `${result.comment}\n${comment}` : comment
-      result.tags = result.tags.concat(tags)
-      return result
-    }, { comment: '', tags: [] })
+  return {
+    comment: symbol.getDocumentationComment(undefined)
+      .map(p => p.text)
+      .join('')
+      .replace(/\r?\n/g, '\n'),
+    tags: symbol.getJsDocTags()
+      .map(tag => ({ tagName: tag.name, comment: tag.text || '' }))
+      .filter(tag => !['param', 'prop', 'property'].includes(tag.tagName))
+  }
 }
 
-export const hasJSDoc = <T extends ts.Node>(node: T): node is T & { jsDoc: ts.JSDoc[] } =>
-  Array.isArray((node as any).jsDoc)
-
-export const getJSDoc = (node: ts.Node): ts.JSDoc | undefined =>
-  hasJSDoc(node) ? last(node.jsDoc) : undefined
+export const getJSDoc = (node: ts.Node): ts.JSDoc[] => toArray((node as any).jsDoc)
 
 export function getCommentFromNode (node: ts.Node): DocNodeComment {
   const doc = getJSDoc(node)
@@ -28,27 +26,36 @@ export function getCommentFromNode (node: ts.Node): DocNodeComment {
 }
 
 export function getFileComment (file: ts.SourceFile): DocNodeComment {
-  const comment: DocNodeComment = {
+  const emptyComment: DocNodeComment = {
     comment: '',
     tags: []
   }
 
-  if (!file.statements.length) return comment
+  const commentRanges = ts.getLeadingCommentRanges(file.getFullText(), file.getFullStart())
 
-  const first = file.statements[0]
-  if (hasJSDoc(first) && first.jsDoc.length > 1) {
-    const doc = first.jsDoc[0]
-    return createCommentFromJSDoc(doc)
-  }
+  if (!commentRanges || commentRanges.length < 1) return emptyComment
 
-  return comment
+  const firstCommentText = file.getFullText()
+    .substring(commentRanges[0].pos, commentRanges[0].end)
+
+  if (!firstCommentText.startsWith('/***')) return emptyComment
+
+  // Use Typescript to parse the comment to retain reliable comment parsing
+  const commentFile = ts.createSourceFile(
+    'comment.ts',
+    firstCommentText.replace('/***', '/**') + '\nexport let a: any',
+    ts.ScriptTarget.ESNext
+  )
+
+  const first = commentFile.statements[0] as ts.Node
+
+  return createCommentFromJSDoc(getJSDoc(first))
 }
 
 function getCommentFromPropertyLikeTag (tagNames: string[], node: ts.Node, name: string): string {
-  const doc = getJSDoc(node)
-  if (!doc) return ''
+  const docs = getJSDoc(node)
 
-  const tag = toArray(doc.tags)
+  const tag = flatMap(docs, doc => toArray(doc.tags))
     .filter(tag => tagNames.includes(tag.tagName.text))
     .map(tag => {
       // "@param arg.0" will result in the name "arg." as 0 is not a valid identifier.
@@ -70,10 +77,10 @@ function getCommentFromPropertyLikeTag (tagNames: string[], node: ts.Node, name:
 export const getPropertyComment = curry(getCommentFromPropertyLikeTag)(['property', 'prop'])
 export const getParamComment = curry(getCommentFromPropertyLikeTag)(['param'])
 
-export function createCommentFromJSDoc (node: ts.JSDoc): DocNodeComment {
+export function createCommentFromJSDoc (nodes: ts.JSDoc[]): DocNodeComment {
   return {
-    comment: node.comment || '',
-    tags: toArray(node.tags)
+    comment: nodes.map(node => node.comment || '').filter(Boolean).join('\n'),
+    tags: flatMap(nodes, (node: ts.JSDoc) => toArray(node.tags))
       .map(createTag)
       .filter(tag => !['param', 'prop', 'property'].includes(tag.tagName))
   }

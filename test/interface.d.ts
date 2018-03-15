@@ -1,4 +1,4 @@
-/**
+/***
  * Interfaces taken from the Typescript docs, annotated with custom comments
  * @see http://www.typescriptlang.org/docs/handbook/interfaces.html
  */
@@ -125,11 +125,10 @@ interface Counter {
   reset(): void
 }
 
-/**
+/*
  * Custom interfaces
  */
 
-/** */
 export interface Merged {
   a: string
 }

@@ -1,4 +1,4 @@
-/**
+/***
  * Functions signatures copied from the Typescript documentation.
  * @see http://www.typescriptlang.org/docs/handbook/generics.html
  */

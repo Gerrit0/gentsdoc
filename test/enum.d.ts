@@ -1,4 +1,4 @@
-/**
+/***
  * Tests for enumerations
  * @since 0.0.0
  */
