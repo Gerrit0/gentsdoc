@@ -1,6 +1,6 @@
 import { Option, OptionType, findFiles, makeMinimatch } from './helpers'
 import { FileDocNode } from './schema'
-import * as ts from 'typescript'
+import Project, { SourceFile } from 'ts-simple-ast'
 import { convertFile } from './converters/file'
 
 export class Application {
@@ -22,21 +22,18 @@ export class Application {
 
   documentFiles (root: string = '.'): FileDocNode[] {
     const files = findFiles(this.include, this.exclude, root)
-    const program = ts.createProgram(
-      files,
-      { target: ts.ScriptTarget.ESNext }
-    )
-    const checker = program.getTypeChecker()
+    const project = new Project()
+    files.forEach(file => project.addSourceFileIfExists(file))
 
-    const nodes: FileDocNode[] = program.getSourceFiles()
+    const nodes: FileDocNode[] = project.getSourceFiles()
       .filter(this.shouldDocument, this)
-      .map(file => convertFile(file, checker))
+      .map(convertFile)
 
     return nodes
   }
 
-  protected shouldDocument (file: ts.SourceFile): boolean {
-    const relativeFile = file.fileName.replace(process.cwd().replace(/\\/g, '/') + '/', '')
+  protected shouldDocument (file: SourceFile): boolean {
+    const relativeFile = file.getFilePath().replace(process.cwd().replace(/\\/g, '/') + '/', '')
 
     const includePatterns = this.include.map(makeMinimatch)
     const excludePatterns = this.exclude.map(makeMinimatch)
