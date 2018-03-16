@@ -1,4 +1,4 @@
-import { Option, OptionType, parseArgv, parseJsonOptionsFile, getOption, printHelpAndExit } from './helpers'
+import { Option, OptionType, parseArgv, parseJsonOptionsFile, getOption, printHelpAndExit, warn } from './helpers'
 import { Application } from './application'
 
 class CLI extends Application {
@@ -34,7 +34,7 @@ class CLI extends Application {
     try {
       const docs = this.documentFiles()
 
-      if (!this.stdout) console.warn('No output method specified.')
+      if (!this.stdout) warn('No output method specified.')
       if (this.stdout) console.log(JSON.stringify(docs, null, 2))
     } catch (error) {
       console.error('Failed to document files:', error)

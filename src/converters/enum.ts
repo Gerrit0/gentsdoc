@@ -2,8 +2,9 @@ import { EnumDocNode, DocNodeKind } from '../schema'
 import * as ts from 'typescript'
 import { getCommentFromSymbol, resolveName, getCommentFromNode, resolveExpression } from '../helpers'
 import { toArray, toNumber, flatMap } from 'lodash'
+import { Context } from './common'
 
-export function convertEnum (symbol: ts.Symbol): EnumDocNode {
+export function convertEnum ({ symbol }: Context): EnumDocNode {
   const doc: EnumDocNode = {
     name: symbol.name,
     kind: DocNodeKind.enum,

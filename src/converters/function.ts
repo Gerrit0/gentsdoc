@@ -1,10 +1,11 @@
 import { FunctionDocNode, FunctionSignatureDocNode, DocNodeKind, TypeDocNode, SimpleTypeDocNode } from '../schema'
 import * as ts from 'typescript'
-import { toArray, partial } from 'lodash'
+import { toArray, partial, unary } from 'lodash'
 import { getCommentFromNode, getParamComment, resolveName, isBindingPattern, getVisibility } from '../helpers'
 import { convertType, stringifyTypeNode } from './type'
+import { Context } from './common'
 
-export function convertFunction (symbol: ts.Symbol): FunctionDocNode {
+export function convertFunction ({ symbol }: Context): FunctionDocNode {
   const doc: FunctionDocNode = {
     name: symbol.name,
     kind: DocNodeKind.function,
@@ -13,7 +14,15 @@ export function convertFunction (symbol: ts.Symbol): FunctionDocNode {
 
   doc.signatures = toArray(symbol.declarations)
     .filter(ts.isFunctionDeclaration)
-    .map(convertSignature)
+    .map(unary(convertSignature))
+
+  toArray(symbol.declarations)
+    .filter(ts.isVariableDeclaration)
+    .forEach(declaration => {
+      if (declaration.type && ts.isFunctionTypeNode(declaration.type)) {
+        doc.signatures.push(convertSignature(declaration.type, declaration))
+      }
+    })
 
   return doc
 }
@@ -21,9 +30,11 @@ export function convertFunction (symbol: ts.Symbol): FunctionDocNode {
 export type Signature = ts.FunctionDeclaration | ts.MethodDeclaration | ts.MethodSignature | ts.CallSignatureDeclaration | ts.ConstructSignatureDeclaration | ts.ConstructorDeclaration | ts.FunctionTypeNode
 
 export function convertSignature (
-  node: Signature | ts.PropertySignature | ts.PropertyDeclaration
+  node: Signature | ts.PropertySignature | ts.PropertyDeclaration,
+  commentNode: ts.Node = node
 ): FunctionSignatureDocNode {
-  const jsdoc = getCommentFromNode(node)
+  const jsdoc = getCommentFromNode(commentNode)
+  console.log(ts.SyntaxKind[commentNode.kind])
 
   let fn: Signature
   if (ts.isPropertySignature(node) || ts.isPropertyDeclaration(node)) {
@@ -49,13 +60,13 @@ export function convertSignature (
     name: node.name ? resolveName(node.name) : '__unknown',
     jsdoc,
     kind: DocNodeKind.functionSignature,
-    genericTypes: toArray(fn.typeParameters).map(partial(convertTypeParameter, node)),
-    parameters: fn.parameters.map(partial(convertParameter, node)),
+    genericTypes: toArray(fn.typeParameters).map(partial(convertTypeParameter, commentNode)),
+    parameters: fn.parameters.map(partial(convertParameter, commentNode)),
     returnType
   }
 
   // Don't include visibility if it is guaranteed to be public
-  if (!ts.isFunctionDeclaration(node)) {
+  if (!ts.isFunctionDeclaration(node) && !ts.isFunctionTypeNode(node)) {
     doc.visibility = getVisibility(node.modifiers)
   }
 

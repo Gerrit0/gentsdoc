@@ -4,6 +4,7 @@ import { getCommentFromSymbol, resolveName, warn, resolveExpression } from '../h
 import { toArray, partial } from 'lodash'
 import { convertTypeParameter, convertSignature } from './function'
 import { convertProperty } from './property'
+import { Context } from './common'
 
 function isStatic (node: ts.Node) {
   return toArray(node.modifiers).some(m => m.kind === ts.SyntaxKind.StaticKeyword)
@@ -13,7 +14,7 @@ function isAbstract (node: ts.Node) {
   return toArray(node.modifiers).some(m => m.kind === ts.SyntaxKind.AbstractKeyword)
 }
 
-export function convertClass (symbol: ts.Symbol): ClassDocNode {
+export function convertClass ({ symbol }: Context): ClassDocNode {
   const declaration = toArray(symbol.declarations).find(ts.isClassDeclaration)
   if (!declaration) {
     throw new Error('No class declaration found.')

@@ -5,8 +5,9 @@ import { warn, getCommentFromSymbol, isTSNode, resolveName, getCommentFromNode, 
 import { convertSignature, convertTypeParameter } from './function'
 import { convertType } from './type'
 import { convertProperty } from './property'
+import { Context } from './common'
 
-export function convertInterface (symbol: ts.Symbol, _checker: ts.TypeChecker): InterfaceDocNode {
+export function convertInterface ({ symbol }: Context): InterfaceDocNode {
   // const int = toArray(symbol.declarations).find(ts.isInterfaceDeclaration)!
   const doc: InterfaceDocNode = {
     name: symbol.name,

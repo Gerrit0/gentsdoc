@@ -3,8 +3,9 @@ import * as ts from 'typescript'
 import { getCommentFromSymbol, getPropertyComment, getParamComment } from '../helpers'
 import { toArray } from 'lodash'
 import { convertType } from './type'
+import { Context } from './common'
 
-export function convertAlias (symbol: ts.Symbol): TypeAliasDocNode {
+export function convertAlias ({ symbol }: Context): TypeAliasDocNode {
   const alias = toArray(symbol.declarations).find(ts.isTypeAliasDeclaration)!
 
   // If this is a function, use @param instead of @prop

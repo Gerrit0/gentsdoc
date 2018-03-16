@@ -45,24 +45,31 @@ export function convertFile (file: ts.SourceFile, checker: ts.TypeChecker): File
       }
     }
 
+    const context = { checker, symbol }
+
     // export enum Enum1, export class Class1
     if (declarations.some(ts.isEnumDeclaration)) {
-      doc.enumerations.push(convertEnum(symbol))
+      doc.enumerations.push(convertEnum(context))
     }
     if (declarations.some(ts.isFunctionDeclaration)) {
-      doc.functions.push(convertFunction(symbol))
+      doc.functions.push(convertFunction(context))
     }
     if (declarations.some(ts.isTypeAliasDeclaration)) {
-      doc.types.push(convertAlias(symbol))
+      doc.types.push(convertAlias(context))
     }
     if (declarations.some(ts.isInterfaceDeclaration)) {
-      doc.interfaces.push(convertInterface(symbol, checker))
+      doc.interfaces.push(convertInterface(context))
     }
     if (declarations.some(ts.isClassDeclaration)) {
-      doc.classes.push(convertClass(symbol))
+      doc.classes.push(convertClass(context))
     }
-    if (declarations.some(ts.isVariableDeclaration)) {
-      doc.variables.push(convertVariable(symbol))
+    const variable = declarations.find(ts.isVariableDeclaration)
+    if (variable) {
+      if (variable.type && ts.isFunctionTypeNode(variable.type)) {
+        doc.functions.push(convertFunction(context))
+      } else {
+        doc.variables.push(convertVariable(context))
+      }
     }
   })
 

@@ -1,12 +1,12 @@
 import { DocNodeKind, VariableDocNode } from '../schema'
 import * as ts from 'typescript'
 import { getPropertyComment, getCommentFromSymbol } from '../helpers'
-import { } from 'lodash'
 import { convertType } from './type'
+import { Context } from './common'
 
-export function convertVariable (symbol: ts.Symbol): VariableDocNode {
+export function convertVariable ({ symbol, checker }: Context): VariableDocNode {
   const declaration = symbol.declarations!.find(ts.isVariableDeclaration)!
-  const type = declaration.type || ts.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword)
+  const type = declaration.type || checker.typeToTypeNode(checker.getTypeAtLocation(declaration), declaration)
 
   const doc: VariableDocNode = {
     name: symbol.name,

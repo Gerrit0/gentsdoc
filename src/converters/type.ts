@@ -132,6 +132,14 @@ export function stringifyTypeNode (node: ts.TypeNode): string {
   if (isKeywordTypeNode(node)) {
     return keywordTypeMap.get(node.kind)!
   }
+  if (ts.isLiteralTypeNode(node)) {
+    switch (node.literal.kind) {
+      case ts.SyntaxKind.NumericLiteral: return 'number'
+      case ts.SyntaxKind.StringLiteral: return 'string'
+      default:
+        throw new Error('Unknown literal type node kind.')
+    }
+  }
   if (ts.isTypeReferenceNode(node)) {
     return resolveName(node.typeName)
   }
@@ -149,7 +157,8 @@ function convertTypeInternal (node: ts.TypeNode | undefined, context: Context): 
   if ([
     isKeywordTypeNode,
     ts.isIntersectionTypeNode,
-    ts.isUnionTypeNode
+    ts.isUnionTypeNode,
+    ts.isLiteralTypeNode
   ].some(test => test(node))) {
     return convertSimpleTypeNode(node as ts.TypeNode, { ...context })
   }
