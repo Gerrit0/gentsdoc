@@ -34,7 +34,6 @@ export function convertSignature (
   commentNode: ts.Node = node
 ): FunctionSignatureDocNode {
   const jsdoc = getCommentFromNode(commentNode)
-  console.log(ts.SyntaxKind[commentNode.kind])
 
   let fn: Signature
   if (ts.isPropertySignature(node) || ts.isPropertyDeclaration(node)) {
