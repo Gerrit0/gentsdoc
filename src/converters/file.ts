@@ -3,6 +3,7 @@ import { SourceFile, Node, ExportableNode } from 'ts-simple-ast'
 import { getFileComment } from '../helpers'
 import { convertEnum } from './enum'
 import { uniq } from 'lodash'
+import { convertFunction } from './function'
 
 export function convertFile (file: SourceFile): FileDocNode {
   const doc: FileDocNode = {
@@ -23,6 +24,7 @@ export function convertFile (file: SourceFile): FileDocNode {
   }
 
   doc.enumerations = getExportSymbols(file.getEnums()).map(convertEnum)
+  doc.functions = getExportSymbols(file.getFunctions()).map(convertFunction)
 
   return doc
 }

@@ -20,7 +20,8 @@ const tests = [
   'Optional parameters',
   'Intersections and unions',
   'A rest parameter',
-  'Rest within an object + multiple signatures'
+  'Rest within an object + multiple signatures',
+  'A type reference'
 ]
 
 tests.forEach((title, index) => test(title, t => {
