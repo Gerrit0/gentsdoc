@@ -1,26 +1,51 @@
-// import { FunctionDocNode, FunctionSignatureDocNode, DocNodeKind, TypeDocNode, SimpleTypeDocNode } from '../schema'
-// import * as ts from 'typescript'
-// import { toArray, partial } from 'lodash'
-// import { getCommentFromNode, getParamComment, resolveName, isBindingPattern, getVisibility } from '../helpers'
-// import { convertType, stringifyTypeNode } from './type'
-// import { Symbol, FunctionDeclaration } from 'ts-simple-ast'
+import { FunctionDocNode, DocNodeKind, FunctionSignatureDocNode, TypeDocNode } from '../schema'
+import { partial } from 'lodash'
+import { Symbol, FunctionDeclaration, ParameterDeclaration, JSDocableNode } from 'ts-simple-ast'
+import { getCommentFromNode, isBindingPattern, getParamComment, getReturnComment } from '../helpers'
+import { convertType } from './type'
 
-// export function convertFunction (node: Symbol): FunctionDocNode {
-//   const doc: FunctionDocNode = {
-//     name: node.getName(),
-//     kind: DocNodeKind.function,
-//     signatures: []
-//   }
+export function convertFunction (node: Symbol): FunctionDocNode {
+  const declarations = node.getDeclarations().filter(d => d instanceof FunctionDeclaration) as FunctionDeclaration[]
 
-//   const declarations = node.getDeclarations().filter(d => d instanceof FunctionDeclaration) as FunctionDeclaration[]
+  return {
+    name: node.getName(),
+    kind: DocNodeKind.function,
+    signatures: declarations.map(convertFunctionDeclaration)
+  }
+}
 
-//   declarations.forEach(declaration => {
-//     const signature: FunctionSignatureDocNode = {
-//       kind: DocNodeKind.functionSignature,
-//       jsdoc:
-//     }
-//     console.log(declaration.getParameters().map(p => p.print()))
-//   })
+function convertFunctionDeclaration (declaration: FunctionDeclaration): FunctionSignatureDocNode {
+  const returnType = convertType(declaration.getReturnType())
+  returnType.comment = getReturnComment(declaration)
+
+  return {
+    name: declaration.getName(),
+    kind: DocNodeKind.functionSignature,
+    jsdoc: getCommentFromNode(declaration),
+    parameters: declaration.getParameters().map(partial(convertParameter, declaration)),
+    genericTypes: [],
+    returnType
+  }
+}
+
+function convertParameter (commentNode: JSDocableNode, param: ParameterDeclaration, index: number): TypeDocNode {
+  const name = isBindingPattern(param.compilerNode.name) ? `param${index}` : param.getName()
+
+  const doc = convertType(param.getType(), param.getTypeNode() , getParamComment(commentNode), name)
+  doc.optional = param.isOptional()
+  if (param.isRestParameter()) doc.rest = true
+
+  return doc
+}
+
+// export function convertParameter (
+//   commentNode: ts.Node, param: ts.ParameterDeclaration, index: number
+// ): TypeDocNode {
+//   const paramName = isBindingPattern(param.name) ? `param${index}` : resolveName(param.name)
+
+//   const doc = convertType(param.type, getParamComment(commentNode), paramName)
+//   doc.optional = !!param.questionToken
+//   if (param.dotDotDotToken) doc.rest = true
 
 //   return doc
 // }
@@ -86,16 +111,4 @@
 //     extends: extendsType,
 //     initializer
 //   }
-// }
-
-// export function convertParameter (
-//   commentNode: ts.Node, param: ts.ParameterDeclaration, index: number
-// ): TypeDocNode {
-//   const paramName = isBindingPattern(param.name) ? `param${index}` : resolveName(param.name)
-
-//   const doc = convertType(param.type, getParamComment(commentNode), paramName)
-//   doc.optional = !!param.questionToken
-//   if (param.dotDotDotToken) doc.rest = true
-
-//   return doc
 // }

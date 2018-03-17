@@ -7,7 +7,7 @@
   "author": "Gerrit Birkeland <gerrit@gerritbirkeland.com>",
   "license": "MIT",
   "devDependencies": {
-    "@types/lodash": "^4.14.104",
+    "@types/lodash": "^4.14.105",
     "@types/minimatch": "^3.0.3",
     "@types/node": "^9.4.7",
     "ava": "^0.25.0",
@@ -20,7 +20,7 @@
   "dependencies": {
     "lodash": "^4.17.5",
     "minimatch": "^3.0.4",
-    "ts-simple-ast": "^9.1.0"
+    "ts-simple-ast": "^9.3.0"
   },
   "peerDependencies": {
     "typescript": ">2.0.0"

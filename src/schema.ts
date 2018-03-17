@@ -19,7 +19,7 @@ export enum DocNodeKind {
 
 export interface DocNode {
   /**
-   * May be the empty string if not known.
+   * May be the empty string or __unknown if not known.
    */
   name: string
   kind: DocNodeKind
