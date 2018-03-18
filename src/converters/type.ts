@@ -21,7 +21,7 @@ function convertTypeInternal (type: Type, context: Context, typeNode?: TypeNode)
     return convertSimpleType(type, context)
   }
 
-  if (type.isObjectType() && type.isAnonymousType()) {
+  if (type.isObjectType() && type.isAnonymousType() && type.getProperties().length) {
     return convertObjectType(type, context)
   }
 
