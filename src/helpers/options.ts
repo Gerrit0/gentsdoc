@@ -71,6 +71,23 @@ export function setOption (flag: string, value: string | ReadonlyArray<string> |
   opt.value = value
 }
 
+/**
+ * Declares an option
+ * @param config
+ */
+export function addOption (config: OptionConfig): void {
+  options.set(config.flag, config)
+}
+
+/**
+ * Clears all the set values for options
+ */
+export function clearOptions (): void {
+  for (const option of options.values()) {
+    delete option.value
+  }
+}
+
 export function Option (config: OptionConfig): PropertyDecorator {
   options.set(config.flag, config)
 
@@ -121,16 +138,24 @@ export function printHelpAndExit (): never {
   return process.exit()
 }
 
+export interface OptionDiagnostic {
+  key: string
+  message: string
+}
+
 /**
  * Parses a list of arguments and injects them into the options map.
  * @param argv the array of command line arguments
+ * @returns an array of warnings, empty if all arguments were of the correct type.
  */
-export function parseArgv (argv: string[]): void {
+export function parseArgv (argv: string[]): OptionDiagnostic[] {
+  const warnings: OptionDiagnostic[] = []
+
   for (let i = 0; i < argv.length; i++) {
     const option = options.get(argv[i].slice(2))
 
     if (!option) {
-      warn(`Unknown option: ${argv[i]}`)
+      warnings.push({ key: argv[i], message: `Unknown option: ${argv[i]}` })
       continue
     }
 
@@ -149,23 +174,27 @@ export function parseArgv (argv: string[]): void {
         option.value = Array.isArray(option.value) ? option.value.concat(argv[++i]) : [argv[++i]]
     }
   }
+
+  return warnings
 }
 
 /**
  * Parses a JSON file and injects the value into the options map.
  * @param file the file to parse and inject
  */
-export function parseJsonOptionsFile (file: string): void {
+export function parseJsonOptionsFile (file: string): OptionDiagnostic[] {
   if (!existsSync(file)) {
     throw new Error('Options file does not exist.')
   }
+
+  const warnings: OptionDiagnostic[] = []
 
   try {
     const json = readJsonSync(file)
     for (const [flag, value] of Object.entries(json)) {
       const option = options.get(flag)
       if (!option) {
-        warn(`Unknown option: ${flag}`)
+        warnings.push({ key: flag, message: `Unknown option: ${flag}` })
         continue
       }
 
@@ -175,9 +204,11 @@ export function parseJsonOptionsFile (file: string): void {
         option.type === OptionType.boolean && typeof value === 'boolean',
         option.type === OptionType.stringArray && Array.isArray(value) && value.every(v => typeof v === 'string')
       ].some(Boolean)) option.value = value
-      else warn(`Invalid type for ${flag}`)
+      else warnings.push({ key: flag, message: `Invalid type for ${flag}` })
     }
   } catch (error) {
-    throw new Error('Unable to parse options file.')
+    return [{ key: 'file', message: 'Unable to parse options file.' }]
   }
+
+  return warnings
 }

@@ -20,6 +20,14 @@ export class Application {
   })
   exclude !: string []
 
+  @Option({
+    flag: 'plugin',
+    help: 'Add a plugin to be loaded when parsing.',
+    default: [],
+    type: OptionType.stringArray
+  })
+  plugins !: string[]
+
   documentFiles (root: string = '.'): FileDocNode[] {
     const files = findFiles(this.include, this.exclude, root)
     const project = new Project()
@@ -43,5 +51,9 @@ export class Application {
       excludePatterns.every(pattern => !pattern.match(relativeFile)),
       file.isDeclarationFile
     ].every(Boolean)
+  }
+
+  protected loadPlugins (): void {
+    this.plugins.forEach(require)
   }
 }

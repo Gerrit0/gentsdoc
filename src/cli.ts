@@ -20,14 +20,18 @@ class CLI extends Application {
 
   constructor () {
     super()
+    // Parse arguments to get plugins to load, ignore errors as plugins may define options.
     parseArgv(process.argv.slice(2))
-    if (this.project) {
-      parseJsonOptionsFile(this.project)
-      // File options should not override cli arguments, so parse argv again.
-      parseArgv(process.argv.slice(2))
-    }
+    if (this.project) parseJsonOptionsFile(this.project)
 
     if (getOption<boolean>('help')) printHelpAndExit()
+
+    // Clear options and parse again, this time showing errors as plugins have loaded
+    const warnings = parseArgv(process.argv.slice(2))
+
+    if (this.project) warnings.push(...parseJsonOptionsFile(this.project))
+
+    warnings.forEach(warning => warn(warning.message))
   }
 
   run (): void {
