@@ -7,9 +7,9 @@
   "author": "Gerrit Birkeland <gerrit@gerritbirkeland.com>",
   "license": "MIT",
   "devDependencies": {
-    "@types/lodash": "^4.14.105",
+    "@types/lodash": "^4.14.106",
     "@types/minimatch": "^3.0.3",
-    "@types/node": "^9.4.7",
+    "@types/node": "^9.6.0",
     "ava": "^0.25.0",
     "ava-ts": "^0.24.2",
     "ts-node": "^5.0.1",
@@ -20,14 +20,14 @@
   "dependencies": {
     "lodash": "^4.17.5",
     "minimatch": "^3.0.4",
-    "ts-simple-ast": "^9.3.0"
+    "ts-simple-ast": "^9.5.0"
   },
   "peerDependencies": {
     "typescript": ">2.0.0"
   },
   "scripts": {
     "build": "tsc",
-    "test": "ava-ts test/*.spec.ts",
+    "test": "ava-ts test/**/*.spec.ts",
     "gentsdoc": "node ./dist/cli.js"
   },
   "bin": {
