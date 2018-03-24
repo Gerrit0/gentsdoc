@@ -1,11 +1,7 @@
 import test from 'ava'
+import { getFileDocs } from './helpers'
 
-import { Application } from '../src/application'
-
-const app = new Application()
-app.include = ['test/function.d.ts']
-
-const [docs] = app.documentFiles('test')
+const docs = getFileDocs('function.d.ts')
 
 const tests = [
   'A basic function',
@@ -24,11 +20,13 @@ const tests = [
   'A type reference'
 ]
 
-tests.forEach((title, index) => test(title, t => {
-  t.truthy(docs.functions[index])
-  t.snapshot(docs.functions[index])
+tests.forEach((title, index) => test(title, async t => {
+  const doc = await docs
+  t.truthy(doc.functions[index])
+  t.snapshot(doc.functions[index])
 }))
 
-test('Correct number of documented functions', t => {
-  t.is(docs.functions.length, tests.length)
+test('Correct number of documented functions', async t => {
+  const doc = await docs
+  t.is(doc.functions.length, tests.length)
 })

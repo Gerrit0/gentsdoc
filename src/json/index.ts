@@ -10,7 +10,7 @@ interface JSONPluginEvents {
   fileComplete: FileDocNode
 }
 
-class JSONPlugin extends EventEmitter {
+export class JSONPlugin extends EventEmitter {
   @Option({
     flag: 'json.stdout',
     help: 'Prints the JSON-stringified output to stdout, useful for debugging.',
