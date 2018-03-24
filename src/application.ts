@@ -1,9 +1,40 @@
-import { Option, OptionType, findFiles, makeMinimatch } from './helpers'
-import { FileDocNode } from './schema'
-import Project, { SourceFile } from 'ts-simple-ast'
-import { convertFile } from './converters/file'
+import { Option, OptionType, findFiles, makeMinimatch, warn } from './helpers'
+import Project, { SourceFile, Node, ExportableNode, Symbol } from 'ts-simple-ast'
+import { EventEmitter } from 'events'
+import { uniq } from 'lodash'
 
-export class Application {
+export enum AppEventNames {
+  fileStart = 'fileStart',
+  fileEnd = 'fileEnd',
+  function = 'function',
+  enum = 'enum',
+  done = 'done'
+}
+
+interface ApplicationEvents {
+  /**
+   * Fires just before a file's members are parsed.
+   */
+  [AppEventNames.fileStart]: SourceFile,
+  /**
+   * Fires after a file's members have been parsed.
+   */
+  [AppEventNames.fileEnd]: SourceFile
+  /**
+   * Fires when an exported function is found.
+   */
+  [AppEventNames.function]: Symbol
+  /**
+   * Fires when an exported enumeration is found.
+   */
+  [AppEventNames.enum]: Symbol
+  /**
+   * Fires after all files have been documented.
+   */
+  [AppEventNames.done]: Application
+}
+
+export class Application extends EventEmitter {
   @Option({
     flag: 'include',
     help: 'Specify files to be included. By default, all declaration files will be included.',
@@ -28,16 +59,45 @@ export class Application {
   })
   plugins !: string[]
 
-  documentFiles (root: string = '.'): FileDocNode[] {
+  documentFiles (root: string = '.'): void {
     const files = findFiles(this.include, this.exclude, root)
     const project = new Project()
     files.forEach(file => project.addSourceFileIfExists(file))
 
-    const nodes: FileDocNode[] = project.getSourceFiles()
+    project.getSourceFiles()
       .filter(this.shouldDocument, this)
-      .map(convertFile)
+      .forEach(this.documentFile, this)
 
-    return nodes
+    this.emit(AppEventNames.done, this)
+  }
+
+  documentFile (file: SourceFile): void {
+    this.emit(AppEventNames.fileStart, file)
+
+    const getExportSymbols = (nodes: Array<Node & ExportableNode>) => {
+      // Exported nodes should always have a symbol.
+      const symbols = nodes.filter(node => node.isExported()).map(node => node.getSymbolOrThrow())
+      return uniq(symbols)
+    }
+
+    getExportSymbols(file.getFunctions())
+      .forEach(s => this.emit(AppEventNames.function, s))
+    getExportSymbols(file.getEnums())
+      .forEach(s => this.emit(AppEventNames.enum, s))
+
+    this.emit(AppEventNames.fileEnd, file)
+  }
+
+  on<K extends keyof ApplicationEvents> (event: K, listener: (file: ApplicationEvents[K]) => void) {
+    return super.on(event, listener)
+  }
+
+  off<K extends keyof ApplicationEvents> (event: K, listener: (file: ApplicationEvents[K]) => void) {
+    return super.removeListener(event, listener)
+  }
+
+  emit<K extends keyof ApplicationEvents> (event: K, argument: ApplicationEvents[K]) {
+    return super.emit(event, argument)
   }
 
   protected shouldDocument (file: SourceFile): boolean {
@@ -54,6 +114,13 @@ export class Application {
   }
 
   protected loadPlugins (): void {
-    this.plugins.forEach(require)
+    this.plugins.forEach(id => {
+      const plugin = require(id)
+      if (plugin.initialize) {
+        plugin.initialize(this)
+      } else {
+        warn(`Plugin ${id} did not specify an initialize function.`)
+      }
+    })
   }
 }
