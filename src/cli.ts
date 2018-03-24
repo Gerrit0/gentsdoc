@@ -11,12 +11,12 @@ class CLI extends Application {
   project !: string
 
   @Option({
-    flag: 'stdout',
-    help: 'Output the JSON-stringified output to standard out, useful for debugging.',
+    flag: 'json',
+    help: 'Create a JSON schema of the documented files.',
     default: false,
     type: OptionType.boolean
   })
-  stdout !: boolean
+  json !: boolean
 
   constructor () {
     super()
@@ -25,6 +25,9 @@ class CLI extends Application {
     if (this.project) parseJsonOptionsFile(this.project)
 
     if (getOption<boolean>('help')) printHelpAndExit()
+
+    if (this.json) this.plugins.push(`${__dirname}/json`)
+    this.loadPlugins()
 
     // Clear options and parse again, this time showing errors as plugins have loaded
     const warnings = parseArgv(process.argv.slice(2))
@@ -36,10 +39,7 @@ class CLI extends Application {
 
   run (): void {
     try {
-      const docs = this.documentFiles()
-
-      if (!this.stdout) warn('No output method specified.')
-      if (this.stdout) console.log(JSON.stringify(docs, null, 2))
+      this.documentFiles()
     } catch (error) {
       console.error('Failed to document files:', error)
     }

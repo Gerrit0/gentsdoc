@@ -1,7 +1,7 @@
 import { FunctionDocNode, DocNodeKind, FunctionSignatureDocNode, TypeDocNode, SimpleTypeDocNode } from '../schema'
 import { partial } from 'lodash'
-import { Symbol, FunctionDeclaration, ParameterDeclaration, JSDocableNode, TypeParameterDeclaration, TypeGuards } from 'ts-simple-ast'
-import { getCommentFromNode, isBindingPattern, getParamComment, getReturnComment } from '../helpers'
+import { Symbol, FunctionDeclaration, ParameterDeclaration, JSDocableNode, TypeParameterDeclaration, TypeGuards, ts } from 'ts-simple-ast'
+import { getCommentFromNode, getParamComment, getReturnComment } from '../helpers'
 import { convertType } from './type'
 
 export function convertFunction (node: Symbol): FunctionDocNode {
@@ -29,7 +29,7 @@ function convertFunctionDeclaration (declaration: FunctionDeclaration): Function
 }
 
 function convertParameter (commentNode: JSDocableNode, param: ParameterDeclaration, index: number): TypeDocNode {
-  const name = isBindingPattern(param.compilerNode.name) ? `param${index}` : param.getName()
+  const name = ts.isIdentifier(param.compilerNode.name) ? param.getName() : `param${index}`
 
   const doc = convertType(param.getType(), param.getTypeNode() , getParamComment(commentNode), name)
   doc.optional = param.isOptional()
