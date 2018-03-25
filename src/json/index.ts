@@ -5,6 +5,7 @@ import { convertEnum } from './enum'
 import { convertFunction } from './function'
 import { EventEmitter } from 'events'
 import { Option, OptionType, warn } from '../helpers'
+import { convertAlias } from './alias'
 
 interface JSONPluginEvents {
   fileComplete: FileDocNode
@@ -48,6 +49,10 @@ export class JSONPlugin extends EventEmitter {
 
     app.on(AppEventNames.enum, symbol => {
       this.file.enumerations.push(convertEnum(symbol))
+    })
+
+    app.on(AppEventNames.alias, symbol => {
+      this.file.types.push(convertAlias(symbol))
     })
   }
 
