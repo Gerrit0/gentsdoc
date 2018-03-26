@@ -222,7 +222,7 @@ export interface PropertyDocNode extends DocNode {
 
   readonly?: boolean
   optional?: boolean
-  visibility: DocNodeVisibility
+  visibility?: DocNodeVisibility
   /**
    * Only used in classes
    */

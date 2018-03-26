@@ -6,6 +6,7 @@ import { convertFunction } from './function'
 import { EventEmitter } from 'events'
 import { Option, OptionType, warn } from '../helpers'
 import { convertAlias } from './alias'
+import { convertInterface } from './interface'
 
 interface JSONPluginEvents {
   fileComplete: FileDocNode
@@ -53,6 +54,10 @@ export class JSONPlugin extends EventEmitter {
 
     app.on(AppEventNames.alias, symbol => {
       this.file.types.push(convertAlias(symbol))
+    })
+
+    app.on(AppEventNames.interface, symbol => {
+      this.file.interfaces.push(convertInterface(symbol))
     })
   }
 
