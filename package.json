@@ -7,7 +7,7 @@
   "author": "Gerrit Birkeland <gerrit@gerritbirkeland.com>",
   "license": "MIT",
   "devDependencies": {
-    "@types/lodash": "^4.14.104",
+    "@types/lodash": "^4.14.106",
     "@types/minimatch": "^3.0.3",
     "@types/node": "^9.4.7",
     "ava": "^0.25.0",
