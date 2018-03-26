@@ -1,5 +1,5 @@
-import { Minimatch } from 'minimatch'
 import * as fs from 'fs'
+import { Minimatch } from 'minimatch'
 
 // Helper to ensure that all minimatch patterns use { dot: true } and remove leading ./ or .\
 export const makeMinimatch = (pattern: string) => new Minimatch(

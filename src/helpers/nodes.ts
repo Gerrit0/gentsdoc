@@ -1,49 +1,34 @@
-import {
-  DocNode,
-  FileDocNode,
-  VariableDocNode,
-  TypeAliasDocNode,
-  InterfaceDocNode,
-  EnumDocNode,
-  ClassDocNode,
-  FunctionDocNode,
-
-  DocNodeKind,
-  TypeDocNode,
-  TupleTypeDocNode,
-  ObjectTypeDocNode,
-  SimpleTypeDocNode,
-  FunctionTypeDocNode,
-  DocNodeVisibility
-} from '../schema'
-
 import { Node, SyntaxKind } from 'ts-simple-ast'
+import * as S from '../schema'
 
-export const isFileDocNode = (node: DocNode): node is FileDocNode => node.kind === DocNodeKind.file
+type DocNode = S.DocNode
+const DocNodeKind = S.DocNodeKind
 
-export const isVariableDocNode = (node: DocNode): node is VariableDocNode => node.kind === DocNodeKind.variable
+export const isFileDocNode = (node: DocNode): node is S.FileDocNode => node.kind === DocNodeKind.file
 
-export const isTypeAliasDocNode = (node: DocNode): node is TypeAliasDocNode => node.kind === DocNodeKind.typeAlias
+export const isVariableDocNode = (node: DocNode): node is S.VariableDocNode => node.kind === DocNodeKind.variable
 
-export const isInterfaceDocNode = (node: DocNode): node is InterfaceDocNode => node.kind === DocNodeKind.typeInterface
+export const isTypeAliasDocNode = (node: DocNode): node is S.TypeAliasDocNode => node.kind === DocNodeKind.typeAlias
 
-export const isEnumDocNode = (node: DocNode): node is EnumDocNode => node.kind === DocNodeKind.enum
+export const isInterfaceDocNode = (node: DocNode): node is S.InterfaceDocNode => node.kind === DocNodeKind.typeInterface
 
-export const isClassDocNode = (node: DocNode): node is ClassDocNode => node.kind === DocNodeKind.class
+export const isEnumDocNode = (node: DocNode): node is S.EnumDocNode => node.kind === DocNodeKind.enum
 
-export const isFunctionDocNode = (node: DocNode): node is FunctionDocNode => node.kind === DocNodeKind.function
+export const isClassDocNode = (node: DocNode): node is S.ClassDocNode => node.kind === DocNodeKind.class
 
-export const isTypeDocNode = (node: DocNode): node is TypeDocNode => (node.kind & DocNodeKind.type) !== 0
+export const isFunctionDocNode = (node: DocNode): node is S.FunctionDocNode => node.kind === DocNodeKind.function
 
-export const isTupleTypeDocNode = (node: DocNode): node is TupleTypeDocNode => node.kind === DocNodeKind.tupleType
+export const isTypeDocNode = (node: DocNode): node is S.TypeDocNode => (node.kind & DocNodeKind.type) !== 0
 
-export const isObjectTypeDocNode = (node: DocNode): node is ObjectTypeDocNode => node.kind === DocNodeKind.objectType
+export const isTupleTypeDocNode = (node: DocNode): node is S.TupleTypeDocNode => node.kind === DocNodeKind.tupleType
 
-export const isFunctionTypeDocNode = (node: DocNode): node is FunctionTypeDocNode => node.kind === DocNodeKind.functionTypeDocNode
+export const isObjectTypeDocNode = (node: DocNode): node is S.ObjectTypeDocNode => node.kind === DocNodeKind.objectType
 
-export const isSimpleTypeDocNode = (node: DocNode): node is SimpleTypeDocNode => node.kind === DocNodeKind.simpleType
+export const isFunctionTypeDocNode = (node: DocNode): node is S.FunctionTypeDocNode => node.kind === DocNodeKind.functionTypeDocNode
 
-export function stringifyType (node: TypeDocNode): string {
+export const isSimpleTypeDocNode = (node: DocNode): node is S.SimpleTypeDocNode => node.kind === DocNodeKind.simpleType
+
+export function stringifyType (node: S.TypeDocNode): string {
   if (isSimpleTypeDocNode(node)) {
     return node.type
   }
@@ -68,7 +53,7 @@ export function stringifyType (node: TypeDocNode): string {
   return ''
 }
 
-export function getVisibility (modifiers: Node[]): DocNodeVisibility {
+export function getVisibility (modifiers: Node[]): S.DocNodeVisibility {
   for (const kind of modifiers.map(mod => mod.getKind())) {
     switch (kind) {
       case SyntaxKind.PrivateKeyword: return 'private'

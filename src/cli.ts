@@ -1,5 +1,5 @@
-import { Option, OptionType, parseArgv, parseJsonOptionsFile, getOption, printHelpAndExit, warn } from './helpers'
 import { Application } from './application'
+import { Option, OptionType, getOption, parseArgv, parseJsonOptionsFile, printHelpAndExit, warn } from './helpers'
 
 class CLI extends Application {
   @Option({

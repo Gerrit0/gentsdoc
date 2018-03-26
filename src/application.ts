@@ -1,7 +1,7 @@
-import { Option, OptionType, findFiles, makeMinimatch, warn } from './helpers'
-import Project, { SourceFile, Node, ExportableNode, Symbol } from 'ts-simple-ast'
 import { EventEmitter } from 'events'
 import { uniq } from 'lodash'
+import Project, { ExportableNode, Node, SourceFile, Symbol } from 'ts-simple-ast'
+import { Option, OptionType, findFiles, makeMinimatch, warn } from './helpers'
 
 export enum AppEventNames {
   fileStart = 'fileStart',

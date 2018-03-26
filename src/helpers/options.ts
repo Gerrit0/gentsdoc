@@ -1,6 +1,6 @@
-import { repeat, flatten, padEnd, size, flow } from 'lodash'
-import { readJsonSync } from './fs'
 import { existsSync } from 'fs'
+import { flatten, flow, padEnd, repeat, size } from 'lodash'
+import { readJsonSync } from './fs'
 
 export const enum OptionType {
   string = 'string',

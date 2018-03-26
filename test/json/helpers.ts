@@ -1,6 +1,6 @@
-import { Application, AppEventNames } from '../../src/application'
-import { FileDocNode } from '../../src/schema'
+import { AppEventNames, Application } from '../../src/application'
 import { JSONPlugin } from '../../src/json'
+import { FileDocNode } from '../../src/schema'
 
 export function getFileDocs (file: string): Promise<FileDocNode> {
   const app = new Application()
