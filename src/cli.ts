@@ -8,7 +8,7 @@ class CLI extends Application {
     default: '',
     type: OptionType.string
   })
-  readonly project !: string
+  project !: string
 
   @Option({
     flag: 'json',
@@ -16,7 +16,7 @@ class CLI extends Application {
     default: false,
     type: OptionType.boolean
   })
-  readonly json !: boolean
+  json !: boolean
 
   constructor () {
     super()
