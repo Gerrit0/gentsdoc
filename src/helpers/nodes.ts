@@ -1,4 +1,4 @@
-import { Node, SyntaxKind } from 'ts-simple-ast'
+import { SyntaxKind, ModifierableNode } from 'ts-simple-ast'
 import * as S from '../schema'
 
 type DocNode = S.DocNode
@@ -53,8 +53,8 @@ export function stringifyType (node: S.TypeDocNode): string {
   return ''
 }
 
-export function getVisibility (modifiers: Node[]): S.DocNodeVisibility {
-  for (const kind of modifiers.map(mod => mod.getKind())) {
+export function getVisibility (node: ModifierableNode): S.DocNodeVisibility {
+  for (const kind of node.getModifiers().map(mod => mod.getKind())) {
     switch (kind) {
       case SyntaxKind.PrivateKeyword: return 'private'
       case SyntaxKind.ProtectedKeyword: return 'protected'
