@@ -36,7 +36,7 @@ export function convertFunctionDeclaration (
 export function convertParameter (commentNode: JSDocableNode, param: ParameterDeclaration, index: number): TypeDocNode {
   const name = ts.isIdentifier(param.compilerNode.name) ? param.getName() : `param${index}`
 
-  const doc = convertType(param.getType(), param.getTypeNode() , getParamComment(commentNode), name)
+  const doc = convertType(param.getType(), param.getTypeNode(), getParamComment(commentNode), name)
   doc.optional = param.isOptional()
   if (param.isRestParameter()) doc.rest = true
 
