@@ -2,7 +2,7 @@ import { flatMap } from 'lodash'
 import { FunctionTypeNode, MethodSignature, PropertySignature, Symbol, TypeGuards } from 'ts-simple-ast'
 import { getCommentFromNode, getCommentFromSymbol } from '../helpers'
 import { DocNodeKind, InterfaceDocNode } from '../schema'
-import { convertFunctionDeclaration, convertParameter, convertTypeParameter } from './function'
+import { convertFunctionDeclaration, convertTypeParameter, convertFunctionTypeNode } from './function'
 import { convertProperty } from './property'
 import { convertType } from './type'
 
@@ -71,15 +71,7 @@ export function convertInterface (symbol: Symbol): InterfaceDocNode {
 
     if (TypeGuards.isPropertySignature(node)) {
       const typeNode = node.getTypeNodeOrThrow() as FunctionTypeNode
-
-      functionDoc.signatures.push({
-        name,
-        kind: DocNodeKind.functionSignature,
-        jsdoc: getCommentFromNode(node),
-        genericTypes: typeNode.getTypeParameters().map(param => convertTypeParameter(node, param)),
-        parameters: typeNode.getParameters().map((param, index) => convertParameter(node, param, index)),
-        returnType: convertType(typeNode.getReturnType(), typeNode.getReturnTypeNode())
-      })
+      functionDoc.signatures.push(convertFunctionTypeNode(typeNode))
     } else {
       functionDoc.signatures.push(convertFunctionDeclaration(node))
     }

@@ -1,103 +1,95 @@
-// import { ClassDocNode, DocNodeKind, FunctionDocNode, SimpleTypeDocNode } from '../schema'
-// import * as ts from 'typescript'
-// import { getCommentFromSymbol, resolveName, warn, resolveExpression } from '../helpers'
-// import { toArray, partial } from 'lodash'
-// import { convertTypeParameter, convertSignature } from './function'
-// import { convertProperty } from './property'
-// import { Context } from './common'
+import { Symbol, TypeGuards, MethodDeclaration, PropertyDeclaration, FunctionTypeNode } from 'ts-simple-ast'
+import { getCommentFromSymbol, warn, getVisibility } from '../helpers'
+import { ClassDocNode, DocNodeKind, FunctionDocNode, SimpleTypeDocNode } from '../schema'
+import { convertTypeParameter, convertFunctionDeclaration, convertFunctionTypeNode } from './function'
+import { convertProperty } from './property'
 
-// function isStatic (node: ts.Node) {
-//   return toArray(node.modifiers).some(m => m.kind === ts.SyntaxKind.StaticKeyword)
-// }
+export function convertClass (symbol: Symbol): ClassDocNode {
+  const declaration = symbol.getDeclarations().find(TypeGuards.isClassDeclaration)
+  if (!declaration) {
+    throw new Error('No class declaration found.')
+  }
 
-// function isAbstract (node: ts.Node) {
-//   return toArray(node.modifiers).some(m => m.kind === ts.SyntaxKind.AbstractKeyword)
-// }
+  const doc: ClassDocNode = {
+    kind: DocNodeKind.class,
+    name: symbol.getName(),
+    implements: [],
+    abstract: declaration.isAbstract(),
+    jsdoc: getCommentFromSymbol(symbol),
+    genericTypes: [],
+    constructors: [],
+    properties: [],
+    methods: [],
+    staticProperties: [],
+    staticMethods: []
+  }
 
-// export function convertClass ({ symbol }: Context): ClassDocNode {
-//   const declaration = toArray(symbol.declarations).find(ts.isClassDeclaration)
-//   if (!declaration) {
-//     throw new Error('No class declaration found.')
-//   }
+  const extendedFrom = declaration.getExtends()
+  if (extendedFrom) doc.extends = extendedFrom.getText()
+  doc.implements = declaration.getImplements()
+    .map(i => i.getText())
 
-//   const doc: ClassDocNode = {
-//     kind: DocNodeKind.class,
-//     name: symbol.name,
-//     implements: [],
-//     abstract: toArray(declaration.modifiers).some(m => m.kind === ts.SyntaxKind.AbstractKeyword),
-//     jsdoc: getCommentFromSymbol(symbol),
-//     genericTypes: [],
-//     constructors: [],
-//     properties: [],
-//     methods: [],
-//     staticProperties: [],
-//     staticMethods: []
-//   }
+  doc.genericTypes = declaration.getTypeParameters().map(param => convertTypeParameter(declaration, param))
 
-//   const extendedFrom = toArray(declaration.heritageClauses)
-//     .find(clause => clause.token === ts.SyntaxKind.ExtendsKeyword)
-//   if (extendedFrom) doc.extends = resolveExpression(extendedFrom.types[0].expression)
-//   toArray(declaration.heritageClauses)
-//     .filter(clause => clause.token === ts.SyntaxKind.ImplementsKeyword)
-//     .forEach(clause => doc.implements.push(resolveExpression(clause.types[0].expression)))
+  const ctorReturnType: SimpleTypeDocNode = {
+    kind: DocNodeKind.simpleType,
+    name: '__unknown',
+    comment: '',
+    optional: false,
+    type: doc.name
+  }
 
-//   doc.genericTypes = toArray(declaration.typeParameters).map(partial(convertTypeParameter, declaration))
+  declaration.getMembers().forEach(member => {
+    if (TypeGuards.isConstructorDeclaration(member)) {
 
-//   const ctorReturnType: SimpleTypeDocNode = {
-//     kind: DocNodeKind.simpleType,
-//     name: '__unknown',
-//     comment: '',
-//     optional: false,
-//     type: doc.name
-//   }
+      const ctorDoc = convertFunctionDeclaration(member)
+      ctorDoc.visibility = getVisibility(member)
+      doc.constructors.push(ctorDoc)
+      ctorDoc.returnType = Object.assign({}, ctorReturnType)
 
-//   declaration.members.forEach(member => {
-//     if (ts.isConstructorDeclaration(member)) {
+    } else if (TypeGuards.isMethodDeclaration(member)) {
 
-//       const ctorDoc = convertSignature(member)
-//       doc.constructors.push(ctorDoc)
-//       ctorDoc.returnType = Object.assign({}, ctorReturnType)
+      handleFunction(member)
 
-//     } else if (ts.isMethodDeclaration(member)) {
+    } else if (TypeGuards.isPropertyDeclaration(member)) {
+      const typeNode = member.getTypeNode()
+      if (typeNode && TypeGuards.isFunctionTypeNode(typeNode)) {
+        handleFunction(member)
+        return
+      }
 
-//       handleFunction(member)
+      const propertyDoc = convertProperty(member)
+      const holder = member.isStatic() ? doc.staticProperties : doc.properties
+      holder.push(propertyDoc)
+      if (holder === doc.properties && member.isAbstract()) {
+        propertyDoc.abstract = true
+      }
+      propertyDoc.visibility = getVisibility(member)
 
-//     } else if (ts.isPropertyDeclaration(member)) {
+    } else {
+      warn('Unknown class member type', member.getName(), member.getKindName())
+    }
+  })
 
-//       if (member.type && ts.isFunctionTypeNode(member.type)) {
-//         handleFunction(member)
-//         return
-//       }
+  function handleFunction (node: MethodDeclaration | PropertyDeclaration): void {
+    const holder = node.isStatic() ? doc.staticMethods : doc.methods
+    const name = node.getName()
+    const memberDoc: FunctionDocNode = holder.find(method => name === method.name) || {
+      kind: DocNodeKind.function,
+      name,
+      signatures: []
+    }
 
-//       const propertyDoc = convertProperty(member)
-//       const holder = isStatic(member) ? doc.staticProperties : doc.properties
-//       holder.push(propertyDoc)
-//       if (holder === doc.properties && isAbstract(member)) {
-//         propertyDoc.abstract = true
-//       }
+    const signatureDoc = TypeGuards.isPropertyDeclaration(node) ?
+        convertFunctionTypeNode(node.getTypeNodeOrThrow() as FunctionTypeNode) : convertFunctionDeclaration(node)
+    memberDoc.signatures.push(signatureDoc)
+    if (holder === doc.methods && node.isAbstract()) {
+      signatureDoc.abstract = true
+    }
+    signatureDoc.visibility = getVisibility(node)
 
-//     } else {
-//       warn('Unknown class member type', resolveName(member.name), ts.SyntaxKind[member.kind])
-//     }
-//   })
+    if (!holder.includes(memberDoc)) holder.push(memberDoc)
+  }
 
-//   function handleFunction (node: ts.MethodDeclaration | ts.PropertyDeclaration): void {
-//     const holder = isStatic(node) ? doc.staticMethods : doc.methods
-//     const name = resolveName(node.name)
-//     const memberDoc: FunctionDocNode = holder.find(method => name === method.name) || {
-//       kind: DocNodeKind.function,
-//       name,
-//       signatures: []
-//     }
-
-//     const signatureDoc = convertSignature(node)
-//     memberDoc.signatures.push(signatureDoc)
-//     if (holder === doc.methods && isAbstract(node)) {
-//       signatureDoc.abstract = true
-//     }
-
-//     if (!holder.includes(memberDoc)) holder.push(memberDoc)
-//   }
-
-//   return doc
-// }
+  return doc
+}

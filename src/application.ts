@@ -10,6 +10,7 @@ export enum AppEventNames {
   enum = 'enum',
   alias = 'alias',
   interface = 'interface',
+  class = 'class',
   done = 'done'
 }
 
@@ -35,9 +36,13 @@ interface ApplicationEvents {
    */
   [AppEventNames.alias]: Symbol
   /**
-   * Fires when an exported type alias is found.
+   * Fires when an exported interface is found.
    */
   [AppEventNames.interface]: Symbol
+  /**
+   * Fires when an exported class is found.
+   */
+  [AppEventNames.class]: Symbol
   /**
    * Fires after all files have been documented.
    */
@@ -98,6 +103,8 @@ export class Application extends EventEmitter {
       .forEach(s => this.emit(AppEventNames.alias, s))
     getExportSymbols(file.getInterfaces())
       .forEach(s => this.emit(AppEventNames.interface, s))
+    getExportSymbols(file.getClasses())
+      .forEach(s => this.emit(AppEventNames.class, s))
 
     this.emit(AppEventNames.fileEnd, file)
   }

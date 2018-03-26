@@ -7,6 +7,7 @@ import { convertEnum } from './enum'
 import { getFileDoc } from './file'
 import { convertFunction } from './function'
 import { convertInterface } from './interface'
+import { convertClass } from './class'
 
 interface JSONPluginEvents {
   fileComplete: FileDocNode
@@ -58,6 +59,10 @@ export class JSONPlugin extends EventEmitter {
 
     app.on(AppEventNames.interface, symbol => {
       this.file.interfaces.push(convertInterface(symbol))
+    })
+
+    app.on(AppEventNames.class, symbol => {
+      this.file.classes.push(convertClass(symbol))
     })
   }
 
