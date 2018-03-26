@@ -6,7 +6,7 @@
 /**
  * Has a label
  */
-interface LabelledValue {
+export interface LabelledValue {
   /**
    * The label
    */
@@ -16,7 +16,7 @@ interface LabelledValue {
 /**
  * Generally better to use another interface.
  */
-interface UsingPropertyTags {
+export interface UsingPropertyTags {
   /**
    * A prop
    * @property x something
@@ -31,7 +31,7 @@ interface UsingPropertyTags {
 /**
  * Optional properties
  */
-interface SquareConfig {
+export interface SquareConfig {
   /**
    * Maybe a string
    */
@@ -45,7 +45,7 @@ interface SquareConfig {
 /**
  * Introduces readonly properties
  */
-interface Point {
+export interface Point {
   readonly x: number
   readonly y: number
 }
@@ -53,14 +53,14 @@ interface Point {
 /**
  * Indexed properties
  */
-interface StringArray {
+export interface StringArray {
   [indexName: number]: string
 }
 
 /**
  * Methods
  */
-interface ClockInterface {
+export interface ClockInterface {
   currentTime: Date
   /**
    * A method
@@ -72,7 +72,7 @@ interface ClockInterface {
 /**
  * Constructor
  */
-interface ClockConstructor {
+export interface ClockConstructor {
   /**
    * @param hour the hour
    * @param minute the minute
@@ -83,7 +83,7 @@ interface ClockConstructor {
 /**
  * Extended interface
  */
-interface Shape {
+export interface Shape {
   /**
    * To be inherited.
    */
@@ -93,14 +93,14 @@ interface Shape {
 /**
  * Extended interface
  */
-interface Shape2 {
+export interface Shape2 {
   colour: string
 }
 
 /**
  * Extends shape
  */
-interface Square extends Shape, Shape2 {
+export interface Square extends Shape, Shape2 {
   /**
    * A property
    */
@@ -110,7 +110,7 @@ interface Square extends Shape, Shape2 {
 /**
  * Hybrid types
  */
-interface Counter {
+export interface Counter {
   /**
    * A signature
    */
