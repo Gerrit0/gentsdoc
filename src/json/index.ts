@@ -19,7 +19,7 @@ export class JSONPlugin extends EventEmitter {
     type: OptionType.boolean,
     default: false
   })
-  stdout !: boolean
+  readonly stdout !: boolean
 
   @Option({
     flag: 'json.out',
@@ -27,7 +27,7 @@ export class JSONPlugin extends EventEmitter {
     type: OptionType.string,
     default: ''
   })
-  out !: string
+  readonly out !: string
 
   files: FileDocNode[] = []
   private file !: FileDocNode
