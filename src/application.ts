@@ -51,7 +51,7 @@ export class Application extends EventEmitter {
     default: ['**/*.d.ts'],
     type: OptionType.stringArray
   })
-  readonly include !: string []
+  include !: string []
 
   @Option({
     flag: 'exclude',
@@ -59,7 +59,7 @@ export class Application extends EventEmitter {
     default: ['**/*.{spec,test}.d.ts', 'node_modules', '.git'],
     type: OptionType.stringArray
   })
-  readonly exclude !: string []
+  exclude !: string []
 
   @Option({
     flag: 'plugin',
@@ -67,7 +67,7 @@ export class Application extends EventEmitter {
     default: [],
     type: OptionType.stringArray
   })
-  readonly plugins !: string[]
+  plugins !: string[]
 
   documentFiles (root: string = '.'): void {
     const files = findFiles(this.include, this.exclude, root)
