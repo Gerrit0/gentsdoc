@@ -1,6 +1,6 @@
+import { curry, flatMap } from 'lodash'
+import Project, { JSDocableNode, SourceFile, Symbol, ts } from 'ts-simple-ast'
 import { DocNodeComment } from '../schema'
-import Project, { SourceFile, Symbol, JSDocableNode, ts } from 'ts-simple-ast'
-import { flatMap, curry } from 'lodash'
 
 /**
  * Tags which are removed for the comments

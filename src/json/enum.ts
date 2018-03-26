@@ -1,7 +1,7 @@
-import { EnumDocNode, DocNodeKind } from '../schema'
-import { getCommentFromSymbol, getCommentFromNode } from '../helpers'
-import { Symbol, TypeGuards } from 'ts-simple-ast'
 import { flatMap, toNumber } from 'lodash'
+import { Symbol, TypeGuards } from 'ts-simple-ast'
+import { getCommentFromNode, getCommentFromSymbol } from '../helpers'
+import { DocNodeKind, EnumDocNode } from '../schema'
 
 export function convertEnum (symbol: Symbol): EnumDocNode {
   const declarations = symbol.getDeclarations().filter(TypeGuards.isEnumDeclaration)

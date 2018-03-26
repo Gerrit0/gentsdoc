@@ -1,11 +1,11 @@
-import { Application, AppEventNames } from '../application'
-import { FileDocNode } from '../schema'
-import { getFileDoc } from './file'
-import { convertEnum } from './enum'
-import { convertFunction } from './function'
 import { EventEmitter } from 'events'
+import { AppEventNames, Application } from '../application'
 import { Option, OptionType, warn } from '../helpers'
+import { FileDocNode } from '../schema'
 import { convertAlias } from './alias'
+import { convertEnum } from './enum'
+import { getFileDoc } from './file'
+import { convertFunction } from './function'
 import { convertInterface } from './interface'
 
 interface JSONPluginEvents {

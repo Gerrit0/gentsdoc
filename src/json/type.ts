@@ -1,6 +1,6 @@
-import { TypeDocNode, SimpleTypeDocNode, DocNodeKind, ObjectTypeDocNode, TupleTypeDocNode, FunctionTypeDocNode } from '../schema'
 import { last } from 'lodash'
-import { Type, Node, ts, TypeNode, TypeGuards, FunctionTypeNode } from 'ts-simple-ast'
+import { FunctionTypeNode, Node, Type, TypeGuards, TypeNode, ts } from 'ts-simple-ast'
+import { DocNodeKind, FunctionTypeDocNode, ObjectTypeDocNode, SimpleTypeDocNode, TupleTypeDocNode, TypeDocNode } from '../schema'
 
 export function convertType (type: Type, typeNode?: TypeNode, getComment: (name: string) => string = () => '', name?: string): TypeDocNode {
   const context: Context = {

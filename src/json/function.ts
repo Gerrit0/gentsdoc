@@ -1,7 +1,6 @@
-import { FunctionDocNode, DocNodeKind, FunctionSignatureDocNode, TypeDocNode, SimpleTypeDocNode } from '../schema'
-import { partial } from 'lodash'
-import { Symbol, FunctionDeclaration, ParameterDeclaration, JSDocableNode, TypeParameterDeclaration, TypeGuards, ts, MethodSignature, CallSignatureDeclaration, ConstructSignatureDeclaration } from 'ts-simple-ast'
+import { CallSignatureDeclaration, ConstructSignatureDeclaration, FunctionDeclaration, JSDocableNode, MethodSignature, ParameterDeclaration, Symbol, TypeGuards, TypeParameterDeclaration, ts } from 'ts-simple-ast'
 import { getCommentFromNode, getParamComment, getReturnComment } from '../helpers'
+import { DocNodeKind, FunctionDocNode, FunctionSignatureDocNode, SimpleTypeDocNode, TypeDocNode } from '../schema'
 import { convertType } from './type'
 
 export function convertFunction (node: Symbol): FunctionDocNode {
@@ -27,8 +26,8 @@ export function convertFunctionDeclaration (
     name,
     kind: DocNodeKind.functionSignature,
     jsdoc: getCommentFromNode(declaration),
-    parameters: declaration.getParameters().map(partial(convertParameter, declaration)),
-    genericTypes: declaration.getTypeParameters().map(partial(convertTypeParameter, declaration)),
+    parameters: declaration.getParameters().map((param, index) => convertParameter(declaration, param, index)),
+    genericTypes: declaration.getTypeParameters().map(param => convertTypeParameter(declaration, param)),
     returnType
   }
 }

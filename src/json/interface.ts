@@ -1,10 +1,10 @@
-import { InterfaceDocNode, DocNodeKind } from '../schema'
-import { partial, flatMap } from 'lodash'
-import { Symbol, TypeGuards, MethodSignature, PropertySignature, FunctionTypeNode } from 'ts-simple-ast'
-import { getCommentFromSymbol, getCommentFromNode } from '../helpers'
-import { convertTypeParameter, convertFunctionDeclaration, convertParameter } from './function'
-import { convertType } from './type'
+import { flatMap } from 'lodash'
+import { FunctionTypeNode, MethodSignature, PropertySignature, Symbol, TypeGuards } from 'ts-simple-ast'
+import { getCommentFromNode, getCommentFromSymbol } from '../helpers'
+import { DocNodeKind, InterfaceDocNode } from '../schema'
+import { convertFunctionDeclaration, convertParameter, convertTypeParameter } from './function'
 import { convertProperty } from './property'
+import { convertType } from './type'
 
 export function convertInterface (symbol: Symbol): InterfaceDocNode {
   const doc: InterfaceDocNode = {
@@ -22,7 +22,7 @@ export function convertInterface (symbol: Symbol): InterfaceDocNode {
 
   const int = symbol.getDeclarations().find(TypeGuards.isInterfaceDeclaration)
   if (int) { // Should always pass
-    doc.genericTypes = int.getTypeParameters().map(partial(convertTypeParameter, int))
+    doc.genericTypes = int.getTypeParameters().map(param => convertTypeParameter(int, param))
     doc.extends = int.getExtends().map(e => e.getText())
   }
 
