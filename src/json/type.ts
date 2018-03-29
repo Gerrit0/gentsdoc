@@ -21,6 +21,10 @@ function convertTypeInternal (type: Type, context: Context, typeNode?: TypeNode)
     return convertSimpleType(type, context, typeNode)
   }
 
+  if (type.isLiteralType()) {
+    return convertTypeInternal(type.getBaseTypeOfLiteralType(), context, typeNode)
+  }
+
   if (type.isObjectType() && type.isAnonymousType() && type.getProperties().length) {
     return convertObjectType(type, context, typeNode)
   }

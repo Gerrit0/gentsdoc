@@ -10,15 +10,10 @@ export function convertVariable (symbol: Symbol): VariableDocNode {
     docNode = docNode.getParentOrThrow()
   } while (!TypeGuards.isJSDocableNode(docNode))
 
-  let type = declaration.getType()
-  if (declaration.getInitializer() && !declaration.getTypeNode()) {
-    type = type.getApparentType()
-  }
-
   const doc: VariableDocNode = {
     name: symbol.getName(),
     kind: DocNodeKind.variable,
-    type: convertType(type, declaration.getTypeNode(), getPropertyComment(docNode)),
+    type: convertType(declaration.getType(), declaration.getTypeNode(), getPropertyComment(docNode)),
     jsdoc: getCommentFromSymbol(symbol)
   }
 
