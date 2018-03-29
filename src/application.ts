@@ -82,7 +82,7 @@ export class Application extends EventEmitter {
   documentFiles (root: string = '.'): void {
     const files = findFiles(this.include, this.exclude, root)
     const project = new Project()
-    files.forEach(file => project.addSourceFileIfExists(file))
+    files.forEach(file => project.addExistingSourceFile(file))
 
     project.getSourceFiles()
       .filter(this.shouldDocument, this)
