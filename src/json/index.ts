@@ -8,6 +8,7 @@ import { getFileDoc } from './file'
 import { convertFunction } from './function'
 import { convertInterface } from './interface'
 import { convertClass } from './class'
+import { convertVariable } from './variable'
 
 interface JSONPluginEvents {
   fileComplete: FileDocNode
@@ -63,6 +64,10 @@ export class JSONPlugin extends EventEmitter {
 
     app.on(AppEventNames.class, symbol => {
       this.file.classes.push(convertClass(symbol))
+    })
+
+    app.on(AppEventNames.variable, symbol => {
+      this.file.variables.push(convertVariable(symbol))
     })
   }
 

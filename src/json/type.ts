@@ -122,7 +122,7 @@ function convertFunctionType (type: FunctionTypeNode, context: Context): Functio
   )
 
   const parameters = type.getParameters().map((param, index) => {
-    const name = ts.isIdentifier(param.compilerNode.name) ? param.getName()! : index.toString()
+    const name = TypeGuards.hasName(param) ? param.getName()! : index.toString()
     return convertTypeInternal(param.getType(), {
       ...context,
       nameScope: [...context.nameScope, name]
