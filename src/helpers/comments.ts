@@ -1,5 +1,5 @@
 import { curry, flatMap } from 'lodash'
-import Project, { JSDocableNode, SourceFile, Symbol, ts } from 'ts-simple-ast'
+import Project, { JSDocableNode, SourceFile, Symbol, ts, Node, TypeGuards } from 'ts-simple-ast'
 import { DocNodeComment } from '../schema'
 
 /**
@@ -14,6 +14,11 @@ const removeTags = [
 ]
 
 const normalizeNewlines = (s: string) => s.replace(/\r\n|\r/g, '\n')
+
+export function getJSDocableNode (node: Node): Node & JSDocableNode {
+  if (TypeGuards.isJSDocableNode(node)) return node
+  return getJSDocableNode(node.getParentOrThrow())
+}
 
 /**
  * Gets the comment for a symbol, includes the concatenated comments from

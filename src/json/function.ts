@@ -13,17 +13,27 @@ import {
   ts,
   MethodDeclaration
 } from 'ts-simple-ast'
-import { getCommentFromNode, getParamComment, getReturnComment } from '../helpers'
+import { getCommentFromNode, getParamComment, getReturnComment, getJSDocableNode } from '../helpers'
 import { DocNodeKind, FunctionDocNode, FunctionSignatureDocNode, SimpleTypeDocNode, TypeDocNode } from '../schema'
 import { convertType } from './type'
 
 export function convertFunction (node: Symbol): FunctionDocNode {
-  const declarations = node.getDeclarations().filter(TypeGuards.isFunctionDeclaration)
+  const declarations = node.getDeclarations()
+    .filter(TypeGuards.isFunctionDeclaration)
+  const varDeclarations = node.getDeclarations()
+    .filter(TypeGuards.isVariableDeclaration)
+
+  const signatures = [
+    ...declarations.map(convertFunctionDeclaration),
+    ...varDeclarations.map(d => d.getTypeNodeOrThrow())
+      .filter(TypeGuards.isFunctionTypeNode)
+      .map(convertFunctionTypeNode)
+  ]
 
   return {
     name: node.getName(),
     kind: DocNodeKind.function,
-    signatures: declarations.map(convertFunctionDeclaration)
+    signatures
   }
 }
 
@@ -48,12 +58,9 @@ export function convertFunctionDeclaration (
 }
 
 export function convertFunctionTypeNode (typeNode: FunctionTypeNode): FunctionSignatureDocNode {
-  const parent = typeNode.getParentOrThrow()
-  if (!TypeGuards.isJSDocableNode(parent)) {
-    throw new Error('FunctionTypeNode parent cannot contain JSDoc nodes.')
-  }
+  let parent = getJSDocableNode(typeNode)
 
-  const name = TypeGuards.isPropertyNamedNode(parent) ? parent.getName() : '__unknown'
+  const name = TypeGuards.hasName(parent) ? parent.getName() : '__unknown'
 
   return {
     name,

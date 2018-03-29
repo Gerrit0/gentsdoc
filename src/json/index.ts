@@ -1,14 +1,17 @@
 import { EventEmitter } from 'events'
+import { writeFileSync } from 'fs'
+import { resolve } from 'path'
 import { AppEventNames, Application } from '../application'
 import { Option, OptionType, warn } from '../helpers'
 import { FileDocNode } from '../schema'
 import { convertAlias } from './alias'
+import { convertClass } from './class'
 import { convertEnum } from './enum'
 import { getFileDoc } from './file'
 import { convertFunction } from './function'
 import { convertInterface } from './interface'
-import { convertClass } from './class'
 import { convertVariable } from './variable'
+import { TypeGuards } from 'ts-simple-ast'
 
 interface JSONPluginEvents {
   fileComplete: FileDocNode
@@ -67,7 +70,13 @@ export class JSONPlugin extends EventEmitter {
     })
 
     app.on(AppEventNames.variable, symbol => {
-      this.file.variables.push(convertVariable(symbol))
+      const declaration = symbol.getDeclarations().find(TypeGuards.isVariableDeclaration)!
+      const typeNode = declaration.getTypeNode()
+      if (typeNode && TypeGuards.isFunctionTypeNode(typeNode)) {
+        this.file.functions.push(convertFunction(symbol))
+      } else {
+        this.file.variables.push(convertVariable(symbol))
+      }
     })
   }
 
@@ -96,7 +105,9 @@ export function initialize (app: Application) {
       console.log(stringified)
     }
     if (plugin.out) {
-      console.log('Write out to', plugin.out)
+      const path = resolve(plugin.out)
+      writeFileSync(path, stringified, { encoding: 'utf-8' })
+      console.log('Wrote JSON to', path)
     }
   })
 }
