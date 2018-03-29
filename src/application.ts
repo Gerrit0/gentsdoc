@@ -96,7 +96,9 @@ export class Application extends EventEmitter {
 
     const getExportSymbols = (nodes: Array<Node & ExportableNode>) => {
       // Exported nodes should always have a symbol.
-      const symbols = nodes.filter(node => node.isExported()).map(node => node.getSymbolOrThrow())
+      const symbols = nodes
+        .filter(node => node.isExported() && !node.isDefaultExport())
+        .map(node => node.getSymbolOrThrow())
       return uniq(symbols)
     }
 
