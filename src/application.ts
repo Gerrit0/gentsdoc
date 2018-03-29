@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events'
 import { uniq } from 'lodash'
-import Project, { ExportableNode, Node, SourceFile, Symbol } from 'ts-simple-ast'
+import Project, { ExportableNode, Node, SourceFile, Symbol, TypeGuards } from 'ts-simple-ast'
 import { Option, OptionType, findFiles, makeMinimatch, warn } from './helpers'
 
 export enum AppEventNames {
@@ -11,6 +11,7 @@ export enum AppEventNames {
   alias = 'alias',
   interface = 'interface',
   class = 'class',
+  variable = 'variable',
   done = 'done'
 }
 
@@ -43,6 +44,10 @@ interface ApplicationEvents {
    * Fires when an exported class is found.
    */
   [AppEventNames.class]: Symbol
+  /**
+   * Fires when an exported variable is found.
+   */
+  [AppEventNames.variable]: Symbol
   /**
    * Fires after all files have been documented.
    */
@@ -96,7 +101,7 @@ export class Application extends EventEmitter {
     }
 
     getExportSymbols(file.getFunctions())
-      .forEach(s => this.emit(AppEventNames.function, s))
+    .forEach(s => this.emit(AppEventNames.function, s))
     getExportSymbols(file.getEnums())
       .forEach(s => this.emit(AppEventNames.enum, s))
     getExportSymbols(file.getTypeAliases())
@@ -105,6 +110,10 @@ export class Application extends EventEmitter {
       .forEach(s => this.emit(AppEventNames.interface, s))
     getExportSymbols(file.getClasses())
       .forEach(s => this.emit(AppEventNames.class, s))
+    file.getExportedDeclarations()
+      .filter(TypeGuards.isVariableDeclaration)
+      .map(declaration => declaration.getSymbolOrThrow())
+      .forEach(s => this.emit(AppEventNames.variable, s))
 
     this.emit(AppEventNames.fileEnd, file)
   }

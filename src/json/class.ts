@@ -1,7 +1,7 @@
-import { Symbol, TypeGuards, MethodDeclaration, PropertyDeclaration, FunctionTypeNode } from 'ts-simple-ast'
-import { getCommentFromSymbol, warn, getVisibility } from '../helpers'
+import { FunctionTypeNode, MethodDeclaration, PropertyDeclaration, Symbol, TypeGuards } from 'ts-simple-ast'
+import { getCommentFromSymbol, getVisibility, warn } from '../helpers'
 import { ClassDocNode, DocNodeKind, FunctionDocNode, SimpleTypeDocNode } from '../schema'
-import { convertTypeParameter, convertFunctionDeclaration, convertFunctionTypeNode } from './function'
+import { convertFunctionDeclaration, convertFunctionTypeNode, convertTypeParameter } from './function'
 import { convertProperty } from './property'
 
 export function convertClass (symbol: Symbol): ClassDocNode {
