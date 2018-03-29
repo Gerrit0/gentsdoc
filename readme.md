@@ -1,5 +1,7 @@
 # Gentsdoc
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/Gerrit0/gentsdoc.svg)](https://greenkeeper.io/)
+
 [![Build Status](https://travis-ci.org/Gerrit0/gentsdoc.svg?branch=master)](https://travis-ci.org/Gerrit0/gentsdoc)
 
 ## Goals
