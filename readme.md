@@ -1,5 +1,7 @@
 # Gentsdoc
 
+[![Build Status](https://travis-ci.org/Gerrit0/gentsdoc.svg?branch=master)](https://travis-ci.org/Gerrit0/gentsdoc)
+
 ## Goals
 
 1. JSON schema for documenting Typescript projects, the following features should be documented:
