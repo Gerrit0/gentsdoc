@@ -58,7 +58,12 @@ export function stringifyType (node: S.TypeDocNode): string {
 export function stringifyFunctionSignature (node: S.FunctionSignatureDocNode): string {
   const params = node.parameters.map(param => `${param.rest ? '...' : ''}${param.name}: ${stringifyType(param)}`)
 
-  const genericTypes = node.genericTypes.map(stringifyType)
+  const genericTypes = node.genericTypes.map(type => {
+    let result = stringifyType(type)
+    if (type.extends) result += ' extends ' + type.extends
+    if (type.initializer) result += ' = ' + type.initializer
+    return result
+  })
   return (genericTypes.length ? `<${genericTypes.join(', ')}>` : '')
     + `(${params.join(', ')}) => ${stringifyType(node.returnType)}`
 }
