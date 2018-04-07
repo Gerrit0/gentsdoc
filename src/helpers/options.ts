@@ -40,6 +40,9 @@ export interface StringArrayOption extends BaseOption {
  */
 export type OptionConfig = BooleanOption | StringOption | NumberOption | StringArrayOption
 
+const shortFlagMap = new Map<string, string>([
+  ['h', 'help']
+])
 const options = new Map<string, OptionConfig & { value?: any }>([
   ['help', {
     flag: 'help',
@@ -76,6 +79,9 @@ export function setOption (flag: string, value: string | ReadonlyArray<string> |
  */
 export function addOption (config: OptionConfig): void {
   options.set(config.flag, config)
+  if (config.short) {
+    shortFlagMap.set(config.short, config.flag)
+  }
 }
 
 /**
@@ -88,7 +94,7 @@ export function clearOptions (): void {
 }
 
 export function Option (config: OptionConfig): PropertyDecorator {
-  options.set(config.flag, config)
+  addOption(config)
 
   return (target: Object, key: string | symbol) => {
     Object.defineProperty(target, key, {
@@ -151,7 +157,8 @@ export function parseArgv (argv: string[]): OptionDiagnostic[] {
   const warnings: OptionDiagnostic[] = []
 
   for (let i = 0; i < argv.length; i++) {
-    const option = options.get(argv[i].slice(2))
+    const option = argv[i].startsWith('--') ? options.get(argv[i].slice(2)) :
+      options.get(shortFlagMap.get(argv[i].slice(1))!)
 
     if (!option) {
       warnings.push({ key: argv[i], message: `Unknown option: ${argv[i]}` })
@@ -179,6 +186,7 @@ export function parseArgv (argv: string[]): OptionDiagnostic[] {
 
 /**
  * Parses a JSON file and injects the value into the options map.
+ * Does not support "short" keys.
  * @param file the file to parse and inject
  */
 export function parseJsonOptionsFile (file: string): OptionDiagnostic[] {
