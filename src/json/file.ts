@@ -1,6 +1,6 @@
 import { SourceFile } from 'ts-simple-ast'
 import { getFileComment } from '../helpers'
-import { DocNodeKind, FileDocNode } from '../schema'
+import { DocNodeKind, FileDocNode } from './schema'
 
 export function getFileDoc (file: SourceFile): FileDocNode {
   return {

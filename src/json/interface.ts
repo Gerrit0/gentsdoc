@@ -1,7 +1,7 @@
 import { flatMap } from 'lodash'
 import { FunctionTypeNode, MethodSignature, PropertySignature, Symbol, TypeGuards } from 'ts-simple-ast'
 import { getCommentFromNode, getCommentFromSymbol } from '../helpers'
-import { DocNodeKind, InterfaceDocNode } from '../schema'
+import { DocNodeKind, InterfaceDocNode } from './schema'
 import { convertFunctionDeclaration, convertTypeParameter, convertFunctionTypeNode } from './function'
 import { convertProperty } from './property'
 import { convertType } from './type'

@@ -1,6 +1,6 @@
 import { Symbol, TypeGuards } from 'ts-simple-ast'
 import { getCommentFromSymbol, getPropertyComment, getJSDocableNode } from '../helpers'
-import { DocNodeKind, VariableDocNode } from '../schema'
+import { DocNodeKind, VariableDocNode } from './schema'
 import { convertType } from './type'
 
 export function convertVariable (symbol: Symbol): VariableDocNode {

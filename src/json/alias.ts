@@ -1,6 +1,6 @@
 import { Symbol, TypeGuards } from 'ts-simple-ast'
 import { getCommentFromSymbol, getParamComment, getPropertyComment } from '../helpers'
-import { DocNodeKind, TypeAliasDocNode } from '../schema'
+import { DocNodeKind, TypeAliasDocNode } from './schema'
 import { convertType } from './type'
 
 export function convertAlias (symbol: Symbol): TypeAliasDocNode {

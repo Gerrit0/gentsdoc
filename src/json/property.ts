@@ -1,6 +1,6 @@
 import { PropertyDeclaration, PropertySignature } from 'ts-simple-ast'
 import { getCommentFromNode, getPropertyComment } from '../helpers'
-import { DocNodeKind, PropertyDocNode } from '../schema'
+import { DocNodeKind, PropertyDocNode } from './schema'
 import { convertType } from './type'
 
 export function convertProperty (node: PropertySignature | PropertyDeclaration): PropertyDocNode {

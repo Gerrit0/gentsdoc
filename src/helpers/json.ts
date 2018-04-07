@@ -1,4 +1,4 @@
-import { DocNodeComment, DocNodeTag } from '../schema'
+import { DocNodeComment, DocNodeTag } from '../json/schema'
 
 export function hasJSDocIgnoreTag (tag: { jsdoc: DocNodeComment }): boolean {
   return tag.jsdoc.tags.some(tag => tag.tagName === 'ignore')

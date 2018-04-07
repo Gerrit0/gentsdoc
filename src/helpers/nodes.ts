@@ -1,5 +1,5 @@
 import { SyntaxKind, ModifierableNode } from 'ts-simple-ast'
-import * as S from '../schema'
+import * as S from '../json/schema'
 
 type DocNode = S.DocNode
 const DocNodeKind = S.DocNodeKind

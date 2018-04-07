@@ -1,6 +1,6 @@
 import { FunctionTypeNode, MethodDeclaration, PropertyDeclaration, Symbol, TypeGuards } from 'ts-simple-ast'
 import { getCommentFromSymbol, getVisibility, warn } from '../helpers'
-import { ClassDocNode, DocNodeKind, FunctionDocNode, SimpleTypeDocNode } from '../schema'
+import { ClassDocNode, DocNodeKind, FunctionDocNode, SimpleTypeDocNode } from './schema'
 import { convertFunctionDeclaration, convertFunctionTypeNode, convertTypeParameter } from './function'
 import { convertProperty } from './property'
 

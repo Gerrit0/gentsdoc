@@ -2,7 +2,7 @@ import { convertFunction as convertFunctionSymbol } from '../json/function'
 import { MarkdownBuilder } from './builder'
 import { Symbol } from 'ts-simple-ast'
 import { hasJSDocIgnoreTag, stringifyType, stringifyTags, stringifyFunctionSignature } from '../helpers'
-import { FunctionSignatureDocNode } from '../schema'
+import { FunctionSignatureDocNode } from '../json/schema'
 
 export function convertFunction (node: Symbol, builder: MarkdownBuilder): void {
   const doc = convertFunctionSymbol(node)

@@ -14,7 +14,7 @@ import {
   MethodDeclaration
 } from 'ts-simple-ast'
 import { getCommentFromNode, getParamComment, getReturnComment, getJSDocableNode } from '../helpers'
-import { DocNodeKind, FunctionDocNode, FunctionSignatureDocNode, SimpleTypeDocNode, TypeDocNode } from '../schema'
+import { DocNodeKind, FunctionDocNode, FunctionSignatureDocNode, SimpleTypeDocNode, TypeDocNode } from './schema'
 import { convertType } from './type'
 
 export function convertFunction (node: Symbol): FunctionDocNode {
