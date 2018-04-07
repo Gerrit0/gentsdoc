@@ -30,6 +30,9 @@ export declare function c(obj: {
   n: number;
 }): string;
 
+/**
+ * @ignore
+ */
 export interface Test {
   a: string;
 }
@@ -111,6 +114,9 @@ export declare function m({ a, ...b }: { a: number, c: string }): string;
  */
 export declare function m(a: { b: number, c: string }[]): string;
 
+/**
+ * @ignore
+ */
 type T = [string]
 
 /**

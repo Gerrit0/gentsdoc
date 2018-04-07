@@ -1,4 +1,4 @@
-# Snapshot report for `test\variable.spec.ts`
+# Snapshot report for `test\json\variable.spec.ts`
 
 The actual snapshot is saved in `variable.spec.ts.snap`.
 

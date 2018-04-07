@@ -18,6 +18,14 @@ class CLI extends Application {
   })
   json !: boolean
 
+  @Option({
+    flag: 'md',
+    help: 'Create markdown files for each documented file.',
+    default: false,
+    type: OptionType.boolean
+  })
+  markdown !: boolean
+
   constructor () {
     super()
     // Parse arguments to get plugins to load, ignore errors as plugins may define options.
@@ -27,6 +35,7 @@ class CLI extends Application {
     if (getOption<boolean>('help')) printHelpAndExit()
 
     if (this.json) this.plugins.push(`${__dirname}/json`)
+    if (this.markdown) this.plugins.push(`${__dirname}/markdown`)
     this.loadPlugins()
 
     // Clear options and parse again, this time showing errors as plugins have loaded

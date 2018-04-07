@@ -1,4 +1,4 @@
-import { flatMap, toNumber } from 'lodash'
+import { flatMap } from 'lodash'
 import { Symbol, TypeGuards } from 'ts-simple-ast'
 import { getCommentFromNode, getCommentFromSymbol } from '../helpers'
 import { DocNodeKind, EnumDocNode } from '../schema'
@@ -20,9 +20,8 @@ export function convertEnum (symbol: Symbol): EnumDocNode {
   members.forEach(member => {
     const setValue = member.getValue()
     const value = setValue == null ? enumIndex : setValue
-    const index = toNumber(value)
-    if (!Number.isNaN(index)) {
-      enumIndex = index + 1
+    if (typeof value === 'number') {
+      enumIndex = value + 1
     }
 
     const type = typeof value === 'string' ? 'string' : 'number'

@@ -1,4 +1,4 @@
-# Snapshot report for `test\class.spec.ts`
+# Snapshot report for `test\json\class.spec.ts`
 
 The actual snapshot is saved in `class.spec.ts.snap`.
 

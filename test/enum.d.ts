@@ -84,6 +84,9 @@ export { Test4 }
  * Messy indexes
  */
 export enum Test5 {
+  /**
+   * @ignore
+   */
   a = 0,
   b,
   c = 4,

@@ -18,6 +18,8 @@ export const isClassDocNode = (node: DocNode): node is S.ClassDocNode => node.ki
 
 export const isFunctionDocNode = (node: DocNode): node is S.FunctionDocNode => node.kind === DocNodeKind.function
 
+export const isFunctionSignatureDocNode = (node: DocNode): node is S.FunctionSignatureDocNode => node.kind === DocNodeKind.functionSignature
+
 export const isTypeDocNode = (node: DocNode): node is S.TypeDocNode => (node.kind & DocNodeKind.type) !== 0
 
 export const isTupleTypeDocNode = (node: DocNode): node is S.TupleTypeDocNode => node.kind === DocNodeKind.tupleType
@@ -51,6 +53,14 @@ export function stringifyType (node: S.TypeDocNode): string {
       + `(${params.join(', ')}) => ${stringifyType(node.returnType)}`
   }
   return ''
+}
+
+export function stringifyFunctionSignature (node: S.FunctionSignatureDocNode): string {
+  const params = node.parameters.map(param => `${param.rest ? '...' : ''}${param.name}: ${stringifyType(param)}`)
+
+  const genericTypes = node.genericTypes.map(stringifyType)
+  return (genericTypes.length ? `<${genericTypes.join(', ')}>` : '')
+    + `(${params.join(', ')}) => ${stringifyType(node.returnType)}`
 }
 
 export function getVisibility (node: ModifierableNode): S.DocNodeVisibility {

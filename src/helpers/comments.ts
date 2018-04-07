@@ -47,8 +47,8 @@ export function getCommentFromNode (node: JSDocableNode): DocNodeComment {
   return {
     comment: docs.map(doc => doc.getComment() || '').join('\n'),
     tags: tags.map(tag => {
-      const text = tag.getFullText() + tag.getComment()
-      const [ tagName, ...words] = text.split(' ')
+      const text = tag.getFullText() + (tag.getComment() || '')
+      const [ tagName, ...words] = text.trim().split(' ')
 
       return {
         tagName: tagName.substr(1),

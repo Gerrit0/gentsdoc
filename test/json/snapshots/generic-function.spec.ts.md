@@ -1,4 +1,4 @@
-# Snapshot report for `test\generic-function.spec.ts`
+# Snapshot report for `test\json\generic-function.spec.ts`
 
 The actual snapshot is saved in `generic-function.spec.ts.snap`.
 
