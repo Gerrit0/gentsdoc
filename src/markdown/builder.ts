@@ -11,7 +11,7 @@ export class MarkdownBuilder {
 
   header (line: string, header = 3): this {
     const href = line.replace(/ /g, '-').toLocaleLowerCase()
-    this.lines.push(`${'#'.repeat(header)} ${header <= 3 ? `[${line}](${href})` : line}\n`)
+    this.lines.push(`${'#'.repeat(header)} ${header <= 3 ? `[${line}](#${href})` : line}\n`)
     return this
   }
 
