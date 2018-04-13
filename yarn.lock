@@ -68,9 +68,9 @@
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-3.0.3.tgz#3dca0e3f33b200fc7d1139c0cd96c1268cadfd9d"
 
-"@types/node@^9.6.1":
-  version "9.6.1"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-9.6.1.tgz#e2d374ef15b315b48e7efc308fa1a7cd51faa06c"
+"@types/node@^9.6.5":
+  version "9.6.5"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-9.6.5.tgz#ee700810fdf49ac1c399fc5980b7559b3e5a381d"
 
 abbrev@1:
   version "1.1.1"
@@ -884,9 +884,9 @@ co@^4.6.0:
   version "4.6.0"
   resolved "https://registry.yarnpkg.com/co/-/co-4.6.0.tgz#6ea6bdf3d853ae54ccb8e47bfa0bf3f9031fb184"
 
-code-block-writer@^6.7.1:
-  version "6.7.1"
-  resolved "https://registry.yarnpkg.com/code-block-writer/-/code-block-writer-6.7.1.tgz#174bbc3b8c7345c7d6e3e47a75159f5e502bda0d"
+code-block-writer@6.13.0:
+  version "6.13.0"
+  resolved "https://registry.yarnpkg.com/code-block-writer/-/code-block-writer-6.13.0.tgz#9473a3a0c26c9a860c388b6b218e4031bbc61fe0"
 
 code-excerpt@^2.1.0, code-excerpt@^2.1.1:
   version "2.1.1"
@@ -2911,12 +2911,12 @@ ts-node@^5.0.1:
     source-map-support "^0.5.3"
     yn "^2.0.0"
 
-ts-simple-ast@^10.0.1:
-  version "10.0.1"
-  resolved "https://registry.yarnpkg.com/ts-simple-ast/-/ts-simple-ast-10.0.1.tgz#f90ec05fdac7f6d7d56f5ddafd33d61a73f3edb5"
+ts-simple-ast@^10.3.0:
+  version "10.3.0"
+  resolved "https://registry.yarnpkg.com/ts-simple-ast/-/ts-simple-ast-10.3.0.tgz#dc84753a7369b3c8dfa04ba3c42ecd5cbc75faec"
   dependencies:
     "@dsherret/to-absolute-glob" "^2.0.2"
-    code-block-writer "^6.7.1"
+    code-block-writer "6.13.0"
     glob-parent "^3.1.0"
     globby "^6.1.0"
     is-negated-glob "^1.0.0"
