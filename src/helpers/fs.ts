@@ -1,4 +1,5 @@
 import * as fs from 'fs'
+import { resolve } from 'path'
 import { Minimatch } from 'minimatch'
 
 // Helper to ensure that all minimatch patterns use { dot: true } and remove leading ./ or .\
@@ -45,4 +46,12 @@ export function readJsonSync (file: string): any {
   const json = JSON.parse(text)
   if (!json) throw new Error('JSON.parse returned null')
   return json
+}
+
+export function ensureDir (dir: string): void {
+  const dirs = resolve(dir).split(/\/|\\/)
+  for (let i = 1; i < dirs.length; i++) {
+    const soFar = dirs.slice(0, i + 1).join('/')
+    if (!fs.existsSync(soFar)) fs.mkdirSync(soFar)
+  }
 }

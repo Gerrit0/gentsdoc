@@ -1,8 +1,8 @@
 import { EventEmitter } from 'events'
 import { writeFileSync } from 'fs'
-import { resolve } from 'path'
+import { resolve, basename } from 'path'
 import { AppEventNames, Application } from '../application'
-import { Option, OptionType, getFileComment, stringifyTags } from '../helpers'
+import { Option, OptionType, getFileComment, stringifyTags, ensureDir } from '../helpers'
 import { MarkdownBuilder } from './builder'
 import { convertEnum } from './enum'
 import { convertFunction } from './function'
@@ -67,10 +67,12 @@ export function initialize (app: Application) {
 
   plugin.on('fileComplete', builder => {
     if (plugin.dir) {
-      writeFileSync(resolve(plugin.dir, builder.fileName), builder.toString())
+      ensureDir(plugin.dir)
+      const out = resolve(plugin.dir, basename(builder.fileName))
+        .replace(/d?\.ts$/, 'md')
+      writeFileSync(out, builder.toString())
     }
     if (plugin.stdout) {
-      console.log(plugin.dir)
       console.log(builder.toString())
     }
   })
