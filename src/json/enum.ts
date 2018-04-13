@@ -1,4 +1,4 @@
-import { flatMap } from 'lodash'
+import { chain } from 'ramda'
 import { Symbol, TypeGuards } from 'ts-simple-ast'
 import { getCommentFromNode, getCommentFromSymbol } from '../helpers'
 import { DocNodeKind, EnumDocNode } from './schema'
@@ -14,7 +14,7 @@ export function convertEnum (symbol: Symbol): EnumDocNode {
     members: []
   }
 
-  const members = flatMap(declarations, d => d.getMembers())
+  const members = chain(d => d.getMembers(), declarations)
   let enumIndex = 0
 
   members.forEach(member => {

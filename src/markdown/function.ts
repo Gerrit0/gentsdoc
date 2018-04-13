@@ -1,12 +1,12 @@
 import { convertFunction as convertFunctionSymbol } from '../json/function'
 import { MarkdownBuilder } from './builder'
 import { Symbol } from 'ts-simple-ast'
-import { hasJSDocIgnoreTag, stringifyType, stringifyTags, stringifyFunctionSignature, isObjectTypeDocNode, isTupleTypeDocNode } from '../helpers'
+import { isNotIgnored, stringifyType, stringifyTags, stringifyFunctionSignature, isObjectTypeDocNode, isTupleTypeDocNode } from '../helpers'
 import { FunctionSignatureDocNode, TypeDocNode } from '../json/schema'
 
 export function convertFunction (node: Symbol, builder: MarkdownBuilder): void {
   const doc = convertFunctionSymbol(node)
-  const signatures = doc.signatures.filter(s => !hasJSDocIgnoreTag(s))
+  const signatures = doc.signatures.filter(isNotIgnored)
 
   if (signatures.length === 0) return
 

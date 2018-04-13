@@ -1,4 +1,4 @@
-import { last } from 'lodash'
+import { last } from 'ramda'
 import { FunctionTypeNode, Node, Type, TypeGuards, TypeNode, ts } from 'ts-simple-ast'
 import { DocNodeKind, FunctionTypeDocNode, ObjectTypeDocNode, SimpleTypeDocNode, TupleTypeDocNode, TypeDocNode } from './schema'
 

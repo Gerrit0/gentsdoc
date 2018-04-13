@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events'
-import { uniq } from 'lodash'
+import { uniq } from 'ramda'
 import Project, { ExportableNode, Node, SourceFile, Symbol, TypeGuards } from 'ts-simple-ast'
 import { Option, OptionType, findFiles, makeMinimatch, warn } from './helpers'
 

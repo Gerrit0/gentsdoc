@@ -1,5 +1,5 @@
 import { existsSync } from 'fs'
-import { flatten, flow, padEnd, repeat, size } from 'lodash'
+import { flatten, pipe, map } from 'ramda'
 import { readJsonSync } from './fs'
 
 export const enum OptionType {
@@ -120,16 +120,20 @@ export function printHelpAndExit (): never {
 
     return [
       str.substr(0, lineLength),
-      ...getLines(repeat(' ', padding) + str.substr(lineLength + 1), padding)
+      ...getLines(' '.repeat(padding) + str.substr(lineLength + 1), padding)
     ]
   }
 
   const getHeader = (opt: OptionConfig) => opt.short ? `--${opt.flag}, -${opt.short}` : `--${opt.flag}`
 
-  const maxLength = Math.max(flow([getHeader, size])([...options.values()])) + 3
+  const maxLength = pipe(
+    map(getHeader),
+    map(header => header.length),
+    n => Math.max(...n)
+  )([...options.values()]) + 3
 
   const lines = [...options.values()]
-    .map(opt => getLines(`${padEnd(getHeader(opt), maxLength)}${opt.help}`, maxLength))
+    .map(opt => getLines(`${getHeader(opt).padEnd(maxLength)}${opt.help}`, maxLength))
 
   process.stdout.write([
     '',

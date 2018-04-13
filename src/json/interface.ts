@@ -1,4 +1,4 @@
-import { flatMap } from 'lodash'
+import { chain } from 'ramda'
 import { FunctionTypeNode, MethodSignature, PropertySignature, Symbol, TypeGuards } from 'ts-simple-ast'
 import { getCommentFromNode, getCommentFromSymbol } from '../helpers'
 import { DocNodeKind, InterfaceDocNode } from './schema'
@@ -29,7 +29,7 @@ export function convertInterface (symbol: Symbol): InterfaceDocNode {
   const declarations = symbol.getDeclarations()
     .filter(TypeGuards.isInterfaceDeclaration)
 
-  flatMap(declarations, d => d.getMembers())
+  chain(d => d.getMembers(), declarations)
     .forEach(node => {
       if (TypeGuards.isMethodSignature(node)) {
         resolveMethod(node)

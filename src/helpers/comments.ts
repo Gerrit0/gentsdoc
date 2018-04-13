@@ -1,4 +1,4 @@
-import { curry, flatMap } from 'lodash'
+import { curry, chain } from 'ramda'
 import Project, { JSDocableNode, SourceFile, Symbol, ts, Node, TypeGuards } from 'ts-simple-ast'
 import { DocNodeComment } from '../json/schema'
 
@@ -42,7 +42,7 @@ export function getCommentFromSymbol (symbol: Symbol): DocNodeComment {
  */
 export function getCommentFromNode (node: JSDocableNode): DocNodeComment {
   const docs = node.getJsDocs()
-  const tags = flatMap(docs, doc => doc.getTags())
+  const tags = chain(doc => doc.getTags(), docs)
 
   return {
     comment: docs.map(doc => doc.getComment() || '').join('\n'),
@@ -90,7 +90,7 @@ export function getFileComment (file: SourceFile): DocNodeComment {
 }
 
 function getCommentFromPropertyLikeTag (tagNames: string[], node: JSDocableNode, name: string): string {
-  const tag = flatMap(node.getJsDocs(), doc => doc.getTags())
+  const tag = chain(doc => doc.getTags(), node.getJsDocs())
     .filter(tag => tagNames.includes(tag.getTagNameNode().getText()))
     .map(tag => {
       // "@param arg.0" will result in the name "arg." as 0 is not a valid identifier.
@@ -125,7 +125,7 @@ export const getParamComment = curry(getCommentFromPropertyLikeTag)(['param'])
  * @param node
  */
 export function getReturnComment (node: JSDocableNode) {
-  const tag = flatMap(node.getJsDocs(), doc => doc.getTags())
+  const tag = chain(doc => doc.getTags(), node.getJsDocs())
     .find(tag => ['return', 'returns'].includes(tag.getTagNameNode().getText()))
 
   return tag && tag.getComment() || ''
