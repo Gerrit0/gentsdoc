@@ -1,8 +1,11 @@
 # Gentsdoc
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/Gerrit0/gentsdoc.svg)](https://greenkeeper.io/)
+[![Build Status](https://travis-ci.org/Gerrit0/gentsdoc.svg?branch=master)](https://travis-ci.org/Gerrit0/gentsdoc) [![Greenkeeper badge](https://badges.greenkeeper.io/Gerrit0/gentsdoc.svg)](https://greenkeeper.io/)
 
-[![Build Status](https://travis-ci.org/Gerrit0/gentsdoc.svg?branch=master)](https://travis-ci.org/Gerrit0/gentsdoc)
+## Progress
+
+1. Basic JSON structure complete
+1. Markdown done for `enum` and `function`
 
 ## Goals
 
