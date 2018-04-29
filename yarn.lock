@@ -64,13 +64,13 @@
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-3.0.3.tgz#3dca0e3f33b200fc7d1139c0cd96c1268cadfd9d"
 
-"@types/node@^9.6.5":
-  version "9.6.5"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-9.6.5.tgz#ee700810fdf49ac1c399fc5980b7559b3e5a381d"
+"@types/node@^10.0.0":
+  version "10.0.0"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-10.0.0.tgz#c40f8e07dce607d3ef25a626b93a6a7cdcf97881"
 
-"@types/ramda@^0.25.21":
-  version "0.25.21"
-  resolved "https://registry.yarnpkg.com/@types/ramda/-/ramda-0.25.21.tgz#3399ac49ea99253c7c308916960b65058a1d63c4"
+"@types/ramda@^0.25.24":
+  version "0.25.24"
+  resolved "https://registry.yarnpkg.com/@types/ramda/-/ramda-0.25.24.tgz#2f64ce2100271163247f93fa7b4b052db40ce155"
 
 abbrev@1:
   version "1.1.1"
@@ -213,9 +213,9 @@ ava-init@^0.2.0:
     read-pkg-up "^2.0.0"
     write-pkg "^3.1.0"
 
-ava-ts@^0.24.2:
-  version "0.24.2"
-  resolved "https://registry.yarnpkg.com/ava-ts/-/ava-ts-0.24.2.tgz#84d562d6750d9c2c7c2a5f5def594bcaa5b4e0ec"
+ava-ts@^0.24.4:
+  version "0.24.4"
+  resolved "https://registry.yarnpkg.com/ava-ts/-/ava-ts-0.24.4.tgz#92312e25206163d86ed6fca65fe71fad56b6d813"
   dependencies:
     "@ava/babel-preset-stage-4" "^1.1.0"
     "@ava/babel-preset-transform-test-files" "^3.0.0"
@@ -2898,9 +2898,9 @@ trim-right@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/trim-right/-/trim-right-1.0.1.tgz#cb2e1203067e0c8de1f614094b9fe45704ea6003"
 
-ts-node@^6.0.0:
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/ts-node/-/ts-node-6.0.0.tgz#46c25f8498593a9248eeea16906f1598fa098140"
+ts-node@^6.0.1:
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/ts-node/-/ts-node-6.0.1.tgz#e2dd65abcadae530d2b2109cfd19202ba9f90402"
   dependencies:
     arrify "^1.0.0"
     chalk "^2.3.0"
@@ -2911,9 +2911,9 @@ ts-node@^6.0.0:
     source-map-support "^0.5.3"
     yn "^2.0.0"
 
-ts-simple-ast@^10.3.0:
-  version "10.3.0"
-  resolved "https://registry.yarnpkg.com/ts-simple-ast/-/ts-simple-ast-10.3.0.tgz#dc84753a7369b3c8dfa04ba3c42ecd5cbc75faec"
+ts-simple-ast@^10.5.0:
+  version "10.5.0"
+  resolved "https://registry.yarnpkg.com/ts-simple-ast/-/ts-simple-ast-10.5.0.tgz#4729db16b911adb6536394d6e63c8a7f978fadee"
   dependencies:
     "@dsherret/to-absolute-glob" "^2.0.2"
     code-block-writer "6.13.0"
@@ -2922,9 +2922,10 @@ ts-simple-ast@^10.3.0:
     is-negated-glob "^1.0.0"
     multimatch "^2.1.0"
     object-assign "^4.1.1"
+    tslib "^1.9.0"
     typescript "2.8.1"
 
-tslib@^1.0.0, tslib@^1.8.0, tslib@^1.8.1:
+tslib@^1.0.0, tslib@^1.8.0, tslib@^1.8.1, tslib@^1.9.0:
   version "1.9.0"
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.9.0.tgz#e37a86fda8cbbaf23a057f473c9f4dc64e5fc2e8"
 
@@ -2979,9 +2980,13 @@ tweetnacl@^0.14.3, tweetnacl@~0.14.0:
   version "0.14.5"
   resolved "https://registry.yarnpkg.com/tweetnacl/-/tweetnacl-0.14.5.tgz#5ae68177f192d4456269d108afa93ff8743f4f64"
 
-typescript@2.8.1, typescript@^2.8.1:
+typescript@2.8.1:
   version "2.8.1"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.8.1.tgz#6160e4f8f195d5ba81d4876f9c0cc1fbc0820624"
+
+typescript@^2.8.3:
+  version "2.8.3"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.8.3.tgz#5d817f9b6f31bb871835f4edf0089f21abe6c170"
 
 uid-number@^0.0.6:
   version "0.0.6"
