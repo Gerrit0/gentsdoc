@@ -1,4 +1,4 @@
-import * as fs from 'fs'
+import * as fs from 'fs-extra'
 import { resolve } from 'path'
 import { Minimatch } from 'minimatch'
 
@@ -42,16 +42,11 @@ export function findFiles (include: string[], exclude: string[] = [], from: stri
 }
 
 export function readJsonSync (file: string): any {
-  const text = fs.readFileSync(file, 'utf-8')
-  const json = JSON.parse(text)
+  const json = fs.readJsonSync(file, { encoding: 'utf-8' })
   if (!json) throw new Error('JSON.parse returned null')
   return json
 }
 
 export function ensureDir (dir: string): void {
-  const dirs = resolve(dir).split(/\/|\\/)
-  for (let i = 1; i < dirs.length; i++) {
-    const soFar = dirs.slice(0, i + 1).join('/')
-    if (!fs.existsSync(soFar)) fs.mkdirSync(soFar)
-  }
+  fs.ensureDirSync(dir)
 }

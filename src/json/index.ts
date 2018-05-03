@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events'
-import { writeFileSync } from 'fs'
+import { writeFileSync } from 'fs-extra'
 import { resolve } from 'path'
 import { AppEventNames, Application } from '../application'
 import { Option, OptionType, warn } from '../helpers'

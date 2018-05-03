@@ -1,4 +1,4 @@
-import { existsSync } from 'fs'
+import { existsSync } from 'fs-extra'
 import { flatten, pipe, map } from 'ramda'
 import { readJsonSync } from './fs'
 
