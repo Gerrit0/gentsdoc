@@ -78,6 +78,9 @@ export function setOption (flag: string, value: string | ReadonlyArray<string> |
  * @param config
  */
 export function addOption (config: OptionConfig): void {
+  // If collisions occur, use the first registered option.
+  if (options.has(config.flag)) return
+
   options.set(config.flag, config)
   if (config.short) {
     shortFlagMap.set(config.short, config.flag)

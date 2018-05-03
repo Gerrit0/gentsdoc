@@ -32,8 +32,6 @@ class CLI extends Application {
     parseArgv(process.argv.slice(2))
     if (this.project) parseJsonOptionsFile(this.project)
 
-    if (getOption<boolean>('help')) printHelpAndExit()
-
     if (this.json) this.plugins.push(`${__dirname}/json`)
     if (this.markdown) this.plugins.push(`${__dirname}/markdown`)
     this.loadPlugins()
@@ -44,6 +42,9 @@ class CLI extends Application {
     if (this.project) warnings.push(...parseJsonOptionsFile(this.project))
 
     warnings.forEach(warning => warn(warning.message))
+
+    // Show help after loading plugins to allow plugin options to show up.
+    if (getOption<boolean>('help')) printHelpAndExit()
   }
 
   run (): void {
