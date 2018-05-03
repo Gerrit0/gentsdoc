@@ -8,11 +8,11 @@
   "license": "MIT",
   "devDependencies": {
     "@types/minimatch": "^3.0.3",
-    "@types/node": "^10.0.0",
+    "@types/node": "^8.10.12",
     "@types/ramda": "^0.25.24",
     "ava": "^0.25.0",
-    "ava-ts": "^0.24.4",
-    "ts-node": "^6.0.1",
+    "ava-ts": "^0.24.5",
+    "ts-node": "^6.0.2",
     "tslint": "^5.9.1",
     "tslint-config-standard": "^7.0.0",
     "typescript": "^2.8.3"
@@ -20,7 +20,7 @@
   "dependencies": {
     "minimatch": "^3.0.4",
     "ramda": "^0.25.0",
-    "ts-simple-ast": "^10.5.0"
+    "ts-simple-ast": "^11.1.0"
   },
   "peerDependencies": {
     "typescript": ">2.0.0"
