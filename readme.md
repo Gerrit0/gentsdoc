@@ -1,3 +1,7 @@
+# Status
+
+On hold - I don't want to duplicate work done over at [Microsoft/tsdoc](https://github.com/Microsoft/tsdoc)
+
 # Gentsdoc
 
 [![Build Status](https://travis-ci.org/Gerrit0/gentsdoc.svg?branch=master)](https://travis-ci.org/Gerrit0/gentsdoc) [![Greenkeeper badge](https://badges.greenkeeper.io/Gerrit0/gentsdoc.svg)](https://greenkeeper.io/)
