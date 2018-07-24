@@ -20,7 +20,7 @@
   "dependencies": {
     "minimatch": "^3.0.4",
     "ramda": "^0.25.0",
-    "ts-simple-ast": "^11.1.0"
+    "ts-simple-ast": "^12.0.0"
   },
   "peerDependencies": {
     "typescript": ">2.0.0"
