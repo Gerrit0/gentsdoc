@@ -11,7 +11,7 @@
     "@types/node": "^10.0.7",
     "@types/ramda": "^0.25.24",
     "ava": "^0.25.0",
-    "ava-ts": "^0.24.5",
+    "ava-ts": "^0.25.0",
     "ts-node": "^6.0.2",
     "tslint": "^5.9.1",
     "tslint-config-standard": "^7.0.0",
