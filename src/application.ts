@@ -1,158 +1,100 @@
-import { EventEmitter } from 'events'
-import { uniq } from 'ramda'
-import Project, { ExportableNode, Node, SourceFile, Symbol, TypeGuards } from 'ts-simple-ast'
-import { Option, OptionType, findFiles, makeMinimatch, warn } from './helpers'
-
-export enum AppEventNames {
-  fileStart = 'fileStart',
-  fileEnd = 'fileEnd',
-  function = 'function',
-  enum = 'enum',
-  alias = 'alias',
-  interface = 'interface',
-  class = 'class',
-  variable = 'variable',
-  done = 'done'
-}
+import * as tsdoc from '@microsoft/tsdoc'
+import { readFileSync } from 'fs'
+import * as ts from 'typescript'
+import { AbstractConverter, EnumReflection } from './converters'
+import { BooleanOption, ConsoleLogger, displayHelpAndExit, EventEmitter, getCommentRange, getConverters, initializeRenderers, Logger, StringOption } from './utils'
 
 interface ApplicationEvents {
-  /**
-   * Fires just before a file's members are parsed.
-   */
-  [AppEventNames.fileStart]: SourceFile,
-  /**
-   * Fires after a file's members have been parsed.
-   */
-  [AppEventNames.fileEnd]: SourceFile
-  /**
-   * Fires when an exported function is found.
-   */
-  [AppEventNames.function]: Symbol
-  /**
-   * Fires when an exported enumeration is found.
-   */
-  [AppEventNames.enum]: Symbol
-  /**
-   * Fires when an exported type alias is found.
-   */
-  [AppEventNames.alias]: Symbol
-  /**
-   * Fires when an exported interface is found.
-   */
-  [AppEventNames.interface]: Symbol
-  /**
-   * Fires when an exported class is found.
-   */
-  [AppEventNames.class]: Symbol
-  /**
-   * Fires when an exported variable is found.
-   */
-  [AppEventNames.variable]: Symbol
-  /**
-   * Fires after all files have been documented.
-   */
-  [AppEventNames.done]: Application
+  start: [],
+  enum: [EnumReflection],
+  done: [],
 }
 
-export class Application extends EventEmitter {
-  @Option({
-    flag: 'include',
-    help: 'Specify files to be included. By default, all declaration files will be included.',
-    default: ['**/*.d.ts'],
-    type: OptionType.stringArray
+export class Application extends EventEmitter<ApplicationEvents> {
+  readonly logger: Logger = new ConsoleLogger()
+  program!: ts.Program
+  checker!: ts.TypeChecker
+
+  private converters!: AbstractConverter[]
+  private parser!: tsdoc.TSDocParser
+
+  @BooleanOption({
+    flag: 'help',
+    help: 'Display this help message.'
   })
-  include !: string []
+  help = false
 
-  @Option({
-    flag: 'exclude',
-    help: 'Specify files to be excluded from the output. Defaults to excluding node_modules, .git, and .spec.d.ts and .test.d.ts files.',
-    default: ['**/*.{spec,test}.d.ts', 'node_modules', '.git'],
-    type: OptionType.stringArray
+  @StringOption({
+    flag: 'project',
+    help: 'Path to the tsconfig.json file for this project'
   })
-  exclude !: string []
+  project = 'tsconfig.json'
 
-  @Option({
-    flag: 'plugin',
-    help: 'Add a plugin to be loaded when parsing.',
-    default: [],
-    type: OptionType.stringArray
-  })
-  plugins !: string[]
-
-  documentFiles (root: string = '.'): void {
-    const files = findFiles(this.include, this.exclude, root)
-    const project = new Project()
-    files.forEach(file => project.addExistingSourceFile(file))
-
-    project.getSourceFiles()
-      .filter(this.shouldDocument, this)
-      .forEach(this.documentFile, this)
-
-    this.emit(AppEventNames.done, this)
-  }
-
-  documentFile (file: SourceFile): void {
-    this.emit(AppEventNames.fileStart, file)
-
-    const getExportSymbols = (nodes: Array<Node & ExportableNode>) => {
-      // Exported nodes should always have a symbol.
-      const symbols = nodes
-        .filter(node => node.isExported() && !node.isDefaultExport())
-        .map(node => node.getSymbolOrThrow())
-      return uniq(symbols)
+  run (argv: string[], tsdocOptions?: tsdoc.TSDocParserConfiguration): void {
+    if (this.help) {
+      displayHelpAndExit()
     }
 
-    getExportSymbols(file.getFunctions())
-    .forEach(s => this.emit(AppEventNames.function, s))
-    getExportSymbols(file.getEnums())
-      .forEach(s => this.emit(AppEventNames.enum, s))
-    getExportSymbols(file.getTypeAliases())
-      .forEach(s => this.emit(AppEventNames.alias, s))
-    getExportSymbols(file.getInterfaces())
-      .forEach(s => this.emit(AppEventNames.interface, s))
-    getExportSymbols(file.getClasses())
-      .forEach(s => this.emit(AppEventNames.class, s))
-    file.getExportedDeclarations()
-      .filter(TypeGuards.isVariableDeclaration)
-      .map(declaration => declaration.getSymbolOrThrow())
-      .forEach(s => this.emit(AppEventNames.variable, s))
+    this.converters = getConverters(this)
+    this.parser = new tsdoc.TSDocParser(tsdocOptions)
+    const entries = this.getEntryPoints(argv)
 
-    this.emit(AppEventNames.fileEnd, file)
-  }
+    const options: ts.CompilerOptions = ts.readConfigFile('tsconfig.json', path => readFileSync(path, 'utf-8')).config
+    const program = this.program = ts.createProgram(entries, options)
+    const checker = this.checker = program.getTypeChecker()
 
-  on<K extends keyof ApplicationEvents> (event: K, listener: (file: ApplicationEvents[K]) => void) {
-    return super.on(event, listener)
-  }
+    const renderers = initializeRenderers(this)
+    if (renderers.length < 1) {
+      this.logger.warn('No renderers have been initialized. No documentation will be generated.')
+    }
 
-  off<K extends keyof ApplicationEvents> (event: K, listener: (file: ApplicationEvents[K]) => void) {
-    return super.removeListener(event, listener)
-  }
-
-  emit<K extends keyof ApplicationEvents> (event: K, argument: ApplicationEvents[K]) {
-    return super.emit(event, argument)
-  }
-
-  protected shouldDocument (file: SourceFile): boolean {
-    const relativeFile = file.getFilePath().replace(process.cwd().replace(/\\/g, '/') + '/', '')
-
-    const includePatterns = this.include.map(makeMinimatch)
-    const excludePatterns = this.exclude.map(makeMinimatch)
-
-    return [
-      includePatterns.some(pattern => pattern.match(relativeFile)),
-      excludePatterns.every(pattern => !pattern.match(relativeFile)),
-      file.isDeclarationFile
-    ].every(Boolean)
-  }
-
-  protected loadPlugins (): void {
-    this.plugins.forEach(id => {
-      const plugin = require(id)
-      if (plugin.initialize) {
-        plugin.initialize(this)
-      } else {
-        warn(`Plugin ${id} did not specify an initialize function.`)
+    this.emit('start')
+    for (const file of entries) {
+      const sourceFile = program.getSourceFile(file)
+      if (!sourceFile) {
+        this.logger.error(`Unable to find source file for ${file}`)
+        continue
       }
+      const symbol = checker.getSymbolAtLocation(sourceFile)
+      if (!symbol) {
+        this.logger.error(`Source file ${file} is not a module`)
+        continue
+      }
+
+      if (!symbol.exports) {
+        this.logger.warn(`Module ${file} has no exports`)
+        continue
+      }
+
+      symbol.exports.forEach(s => {
+        // Most of the time there will only be one converter, however there may
+        // be multiple due to declaration merging of different declaration types.
+        const converters = this.converters.filter(c => c.supports(s))
+        if (converters.length === 0) {
+          this.logger.warn(`No converters found to convert symbol ${s.name}`)
+        }
+        converters.forEach(c => c.convert(s))
+      })
+    }
+    this.emit('done')
+    renderers.forEach(r => r.render())
+  }
+
+  getDocComment (declarations: ReadonlyArray<ts.Declaration> | ts.Declaration) {
+    return this.parseCommentRange(getCommentRange(declarations))
+  }
+
+  parseCommentRange (range?: tsdoc.TextRange): tsdoc.DocComment | undefined {
+    return range && this.parser.parseRange(range).docComment
+  }
+
+  private getEntryPoints (argv: string[]): string[] {
+    return argv.filter(entry => {
+      if (entry.startsWith('--')) {
+        this.logger.warn(`Unrecognized option: ${entry}`)
+        return false
+      }
+      return true
     })
   }
 }

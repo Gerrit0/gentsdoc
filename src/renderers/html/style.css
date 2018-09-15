@@ -1,0 +1,72 @@
+@import url("https://fonts.googleapis.com/css?family=Roboto");
+:root {
+  --background: #ffffff;
+  --text-color: #5f5f5f;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.docs {
+  display: flex;
+  flex: 1 1 auto;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--background);
+  color: var(--text-color);
+  font-family: Roboto, sans-serif;
+  font-style: normal;
+  font-weight: 400;
+}
+
+.nav-container,
+.doc-container {
+  height: 100%;
+  overflow-y: auto;
+  padding: 0.5em;
+}
+
+.nav-container {
+  flex: 3 3 0;
+  min-width: 250px;
+  box-shadow: 0 0 0.5em #9da5ab;
+}
+.nav-container .search {
+  width: calc(100% - 1em);
+  border: 0;
+  border-bottom: 2px solid var(--text-color);
+  margin-bottom: 1em;
+  padding: 0.5em;
+}
+.nav-container .nav-section ul {
+  margin: 0;
+  list-style: none;
+  padding-left: 1.5em;
+}
+.nav-container .nav-section summary {
+  outline: none;
+  user-select: none;
+}
+.nav-container .nav-section li {
+  padding: 0 0.1em;
+  margin: 0.2em 0;
+}
+.nav-container .nav-section a {
+  display: block;
+  text-decoration: none;
+  color: var(--text-color);
+}
+
+.doc-container {
+  flex: 14 14 0;
+}
+.doc-container .doc-member {
+  min-height: 300px;
+}
+.doc-container .doc-member:not(:last-child) {
+  border-bottom: 1px solid var(--text-color);
+  margin-bottom: 1em;
+}
