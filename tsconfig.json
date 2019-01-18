@@ -11,11 +11,14 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "experimentalDecorators": true,
+    "esModuleInterop": true,
     "outDir": "dist",
-    "sourceMap": true
+    "jsx": "react",
+    "inlineSourceMap": true
   },
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
+    "src/**/*.tsx"
   ],
   "exclude": [
     "node_modules",
