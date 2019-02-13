@@ -4,12 +4,12 @@ import { Options } from '../options/options'
 
 export interface OutputGenerator {
   /**
-   * Returns true if {@link generate} should be called.
+   * Returns true if {@link OutputGenerator.generate} should be called.
    */
   enabled (options: Options): boolean
 
   /**
-   * Creates and writes output, will only be called if {@link enabled} returns true.
+   * Creates and writes output, will only be called if {@link OutputGenerator.enabled} returns true.
    * @param symbols
    */
   generate (app: Application, symbols: ReadonlyArray<Context>): void
