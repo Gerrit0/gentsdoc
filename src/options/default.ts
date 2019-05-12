@@ -2,14 +2,14 @@ import { Options } from './options'
 
 export function addDefaultOptions (options: Options) {
   options.declareOption({
-    name: 'entries',
-    help: 'The entry point(s) of the program',
-    default: ['src/index.ts']
+    name: 'help',
+    help: 'Display this message',
+    default: false
   })
 
   options.declareOption({
-    name: 'html',
-    help: 'The output directory for HTML output',
-    default: ''
+    name: 'entry',
+    help: 'The entry point(s) of the program',
+    default: 'src/index.ts' // TODO: Look at the types / typings key of package.json to find entry point when using CLI
   })
 }

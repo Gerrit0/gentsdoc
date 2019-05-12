@@ -1,19 +1,19 @@
 import * as ts from 'typescript'
 import { Output } from './output/output'
 import { Context } from './context'
-import { GentsdocOptions } from './options'
+import { GentsdocOptionsLax } from './options'
 import { Options } from './options/options'
 import { ConsoleLogger, Logger } from './utils/logger'
 
 export class Application {
-  _program?: ts.Program
-  _checker?: ts.TypeChecker
+  private _program?: ts.Program
+  private _checker?: ts.TypeChecker
 
   options = new Options()
   output = new Output(this)
   logger: Logger = new ConsoleLogger()
 
-  constructor (options: Partial<GentsdocOptions> = {}) {
+  constructor (options: GentsdocOptionsLax = {}) {
     this.options.setOptions(options)
   }
 
@@ -32,28 +32,26 @@ export class Application {
   }
 
   generate (options: ts.CompilerOptions = {}) {
-    this._program = ts.createProgram(this.options.getOption('entries'), options)
+    const path = this.options.getOption('entry')
+    this._program = ts.createProgram([path], options)
     this._checker = this.program.getTypeChecker()
 
+    const file = this.program.getSourceFile(path)
+    if (!file) {
+      this.logger.error(`The entry ${path} could not be found.`)
+      return
+    }
+
+    const rootSymbol = this.checker.getSymbolAtLocation(file)
+    if (!rootSymbol) {
+      this.logger.error(`The source file ${path} is not a module and will not be documented.`)
+      return
+    }
+
     const toDocument: ts.Symbol[] = []
-
-    for (const path of this.options.getOption('entries')) {
-      const file = this.program.getSourceFile(path)
-      if (!file) {
-        this.logger.error(`The entry ${path} could not be found.`)
-        continue
-      }
-
-      const rootSymbol = this.checker.getSymbolAtLocation(file)
-      if (!rootSymbol) {
-        this.logger.error(`The source file ${path} is not a module and will not be documented.`)
-        continue
-      }
-
-      const fileExports = rootSymbol.exports
-      if (fileExports) {
-        fileExports.forEach(e => toDocument.push(e))
-      }
+    const fileExports = rootSymbol.exports
+    if (fileExports) {
+      fileExports.forEach(e => toDocument.push(e))
     }
 
     const contexts = toDocument.map(s => new Context(this.checker, s))

@@ -1,37 +1,37 @@
-import { GentsdocOptions } from '.'
+import { GentsdocOptions, GentsdocOptionsLax, AllowedOptionTypes } from '.'
 import { Logger } from '../utils/logger'
 import { addDefaultOptions } from './default'
 
-interface OptionDeclaration<K extends keyof GentsdocOptions = keyof GentsdocOptions> {
+export interface OptionDeclaration<K extends keyof GentsdocOptions = keyof GentsdocOptions> {
   name: K
   default: GentsdocOptions[K]
   help: string
 }
 
-interface OptionReader {
-  read (declarations: OptionDeclaration[], logger: Logger): Partial<GentsdocOptions>
+export interface OptionReader {
+  /**
+   * Read may return extra properties when parsing user input or may throw an error. Declared options must be converted to the correct type.
+   * @param declarations
+   * @param logger
+   */
+  read (declarations: OptionDeclaration[], logger: Logger): GentsdocOptionsLax
 }
 
 export class Options {
-  private optionMap: Partial<GentsdocOptions> = {}
+  private optionMap: GentsdocOptionsLax = {}
   private options: OptionDeclaration[] = []
-  private readers: OptionReader[] = []
+  private readers: Set<OptionReader> = new Set()
 
   constructor () {
     addDefaultOptions(this)
   }
 
   addReader (reader: OptionReader): void {
-    if (!this.readers.includes(reader)) {
-      this.readers.push(reader)
-    }
+    this.readers.add(reader)
   }
 
   removeReader (reader: OptionReader): void {
-    const index = this.readers.indexOf(reader)
-    if (index !== -1) {
-      this.readers.splice(index, 1)
-    }
+    this.readers.delete(reader)
   }
 
   read (logger: Logger): void {
@@ -42,11 +42,18 @@ export class Options {
   }
 
   declareOption (option: OptionDeclaration): void {
-    const declaration = this.options.find(d => d.name === option.name)
-    if (declaration) {
+    if (this.options.some(d => d.name === option.name)) {
       throw new Error(`An option with name '${option.name}' already exists.`)
     }
     this.options.push(option)
+
+    if (this.optionMap.hasOwnProperty(option.name)) {
+      if (typeof option.default === 'string') {
+        this.optionMap[option.name] = this.optionMap[option.name] + ''
+      } else {
+        this.optionMap[option.name] = !!this.optionMap[option.name]
+      }
+    }
   }
 
   isSet (name: keyof GentsdocOptions): boolean {
@@ -61,19 +68,27 @@ export class Options {
     return this.optionMap.hasOwnProperty(name) ? this.optionMap[name]! : declaration.default
   }
 
-  setOption<K extends keyof GentsdocOptions> (option: K, value: GentsdocOptions[K]): void {
+  getOptionUnsafe (name: string): AllowedOptionTypes | undefined {
+    return this.optionMap[name]
+  }
+
+  setOption<K extends keyof GentsdocOptions> (option: K, value: GentsdocOptions[K]): void
+  setOption (option: string, value: AllowedOptionTypes): void
+  setOption (option: string, value: AllowedOptionTypes) {
     this.optionMap[option] = value
   }
 
-  setOptions (options: Partial<GentsdocOptions>) {
+  setOptions (options: GentsdocOptionsLax) {
     this.optionMap = { ...this.optionMap, ...options }
   }
 
   getHelpOutput (): string {
+    const maxNameLength = this.options.reduce((len, opt) => Math.max(len, opt.name.length), 0)
+
     return [
-      'Usage: gentsdoc ./src',
+      'Usage: gentsdoc --entry src/index.ts',
       '',
-      ...this.options.map(opt => `  --${opt.name} ${opt.help}`)
+      ...this.options.map(opt => ` --${opt.name.padEnd(maxNameLength)} ${opt.help}`)
     ].join('\n')
   }
 }
