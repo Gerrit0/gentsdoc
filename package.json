@@ -9,7 +9,7 @@
   "devDependencies": {
     "@types/fs-extra": "^5.0.2",
     "@types/minimatch": "^3.0.3",
-    "@types/node": "^8.10.12",
+    "@types/node": "^10.0.7",
     "@types/ramda": "^0.25.24",
     "ava": "^0.25.0",
     "ava-ts": "^0.24.5",
