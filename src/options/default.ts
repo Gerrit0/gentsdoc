@@ -12,4 +12,10 @@ export function addDefaultOptions (options: Options) {
     help: 'The entry point(s) of the program',
     default: 'src/index.ts' // TODO: Look at the types / typings key of package.json to find entry point when using CLI
   })
+
+  options.declareOption({
+    name: 'out',
+    help: 'Where to output documentation',
+    default: 'docs'
+  })
 }

@@ -12,7 +12,7 @@ export interface OutputGenerator {
    * Creates and writes output, will only be called if {@link OutputGenerator.enabled} returns true.
    * @param symbols
    */
-  generate (app: Application, symbols: ReadonlyArray<Context>): void
+  generate (app: Application, symbols: readonly Context[]): Promise<void> | void
 }
 
 /**
@@ -57,10 +57,10 @@ export class Output {
    * Creates output for all enabled generators.
    * @param symbols
    */
-  generate (symbols: ReadonlyArray<Context>) {
+  async generate (symbols: ReadonlyArray<Context>) {
     for (const gen of this.generators) {
       if (gen.enabled(this.app.options)) {
-        gen.generate(this.app, symbols)
+        await gen.generate(this.app, symbols)
       }
     }
   }

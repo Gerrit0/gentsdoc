@@ -1,23 +1,31 @@
-import * as colors from 'colors/safe'
+import colors from 'colors/safe'
 
-export interface Logger {
-  log (message: string): void
-  info (message: string): void
-  warn (message: string): void
-  error (message: string | Error): void
+export enum LogLevel {
+  error,
+  warn,
+  info
 }
 
-export class ConsoleLogger implements Logger {
-  log (message: string): void {
+export class Logger {
+  static level = LogLevel.error
+
+  static log (message: string): void {
     console.log(message)
   }
-  info (message: string): void {
-    console.log(colors.cyan(message))
+
+  static info (message: string): void {
+    if (this.level === LogLevel.info) {
+      console.log(colors.cyan(message))
+    }
   }
-  warn (message: string): void {
-    console.warn(colors.yellow(message))
+
+  static warn (message: string): void {
+    if (this.level >= LogLevel.warn) {
+      console.warn(colors.yellow(message))
+    }
   }
-  error (message: string | Error): void {
+
+  static error (message: string | Error): void {
     console.error(colors.red(message instanceof Error ? message.message : message))
   }
 }

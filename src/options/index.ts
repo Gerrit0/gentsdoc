@@ -1,5 +1,6 @@
 // Supported types: string, string[], boolean
 export interface GentsdocOptions {
+  out: string
   entry: string
   help: boolean
 }

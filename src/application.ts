@@ -3,7 +3,8 @@ import { Output } from './output/output'
 import { Context } from './context'
 import { GentsdocOptionsLax } from './options'
 import { Options } from './options/options'
-import { ConsoleLogger, Logger } from './utils/logger'
+import { TSDocParser } from '@microsoft/tsdoc'
+import { Logger } from './utils/logger';
 
 export class Application {
   private _program?: ts.Program
@@ -11,12 +12,14 @@ export class Application {
 
   options = new Options()
   output = new Output(this)
-  logger: Logger = new ConsoleLogger()
 
   constructor (options: GentsdocOptionsLax = {}) {
     this.options.setOptions(options)
   }
 
+  /**
+   * Only available once {@link Application.generate} has been called.
+   */
   get program () {
     if (!this._program) {
       throw new Error('Application not initialized.')
@@ -24,6 +27,9 @@ export class Application {
     return this._program
   }
 
+  /**
+   * Only available once {@link Application.generate} has been called.
+   */
   get checker () {
     if (!this._checker) {
       throw new Error('Application not initialized.')
@@ -31,20 +37,24 @@ export class Application {
     return this._checker
   }
 
-  generate (options: ts.CompilerOptions = {}) {
+  /**
+   * Generates documentation for the library.
+   * @param options
+   */
+  async generate (options: ts.CompilerOptions = {}): Promise<void> {
     const path = this.options.getOption('entry')
     this._program = ts.createProgram([path], options)
     this._checker = this.program.getTypeChecker()
 
     const file = this.program.getSourceFile(path)
     if (!file) {
-      this.logger.error(`The entry ${path} could not be found.`)
+      Logger.error(`The entry ${path} could not be found.`)
       return
     }
 
     const rootSymbol = this.checker.getSymbolAtLocation(file)
     if (!rootSymbol) {
-      this.logger.error(`The source file ${path} is not a module and will not be documented.`)
+      Logger.error(`The source file ${path} is not a module and will not be documented.`)
       return
     }
 
@@ -54,7 +64,7 @@ export class Application {
       fileExports.forEach(e => toDocument.push(e))
     }
 
-    const contexts = toDocument.map(s => new Context(this.checker, s))
-    this.output.generate(contexts)
+    const contexts = toDocument.map(s => new Context(this.checker, s, new TSDocParser()))
+    return this.output.generate(contexts)
   }
 }

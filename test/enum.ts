@@ -8,6 +8,8 @@ export enum A {
 
 /**
  * With values
+ * @remarks
+ * Also links to {@link A} and {@link A.a}
  */
 export const enum B {
   a = 4,
